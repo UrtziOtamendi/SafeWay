@@ -1,0 +1,70 @@
+{
+  "project_info": {
+    "project_number": "477084010803",
+    "firebase_url": "https://safeway-6439f.firebaseio.com",
+    "project_id": "safeway-6439f",
+    "storage_bucket": "safeway-6439f.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:477084010803:android:ef0819cf823a4029",
+        "android_client_info": {
+          "package_name": "otamendi.urtzi.com.safeway"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "477084010803-bnqkk0qut0om4j7tgv02tbdbgfhjgs85.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "otamendi.urtzi.com.safeway",
+            "certificate_hash": "ba77e9aacae43c32e04dd19241ac16ec691c5875"
+          }
+        },
+        {
+          "client_id": "477084010803-u6lgfaeuf0p8rbu9ai719f5kmf1j31ul.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "otamendi.urtzi.com.safeway",
+            "certificate_hash": "ae3e62ae63026876f877ad4c52bd47d8536ded1b"
+          }
+        },
+        {
+          "client_id": "477084010803-ai0efsb4isjmogoiai3pks8upev7ldtc.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAnPcjjSCDGn7j-qy__hIHBk4eCnwdnm9Y"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "477084010803-6u6s14deffq2j72ki894f8mvffqrl6la.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.urtzi.otamendi"
+              }
+            },
+            {
+              "client_id": "477084010803-ai0efsb4isjmogoiai3pks8upev7ldtc.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
