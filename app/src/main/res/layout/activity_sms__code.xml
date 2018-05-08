@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="otamendi.urtzi.com.safeway.Activities.SMS_Code"
+    android:orientation="vertical">
+
+
+
+
+        <com.raycoarana.codeinputview.CodeInputView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:animate_on_complete="false"
+            android:id="@+id/smsInput"
+            app:input_type="numeric"
+            app:length_of_code="6"
+            />
+
+        <Button
+            android:id="@+id/SMSverifyButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentStart="true"
+            android:layout_below="@+id/phone_input"
+            android:layout_marginTop="185dp"
+            android:text="Verify" />
+
+
+
+</LinearLayout>
