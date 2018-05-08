@@ -21,12 +21,18 @@ import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.PhoneAuthCredential;
 import com.google.firebase.auth.PhoneAuthProvider;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import net.rimoto.intlphoneinput.IntlPhoneInput;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
+
 import android.util.Log;
 
 import otamendi.urtzi.com.safeway.Domain.User;
@@ -35,26 +41,18 @@ import otamendi.urtzi.com.safeway.Utils.signInAuth;
 
 public class signIn extends AppCompatActivity {
 
-    private Button verifyButton;
-    private IntlPhoneInput phoneInputView;
-
-    private User user;
     private static final String TAG = "SignIn";
     private static final int RESULT_PICK_CONTACT = 10;
-
+    private Button verifyButton;
+    private IntlPhoneInput phoneInputView;
+    private User user;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_sign_in);
-        if( signInAuth.SignedIn()){
-            if(!signInAuth.Configured()){
-                pickContact();
-
-            }else{
-
-                sendHome();
-            }
+        if (signInAuth.SignedIn()) {
+            Configured();
         }
         bindUI();
         verifyButton.setOnClickListener(
@@ -68,22 +66,22 @@ public class signIn extends AppCompatActivity {
     }
 
 
-    private void bindUI(){
-        verifyButton= (Button) findViewById(R.id.verifyButton);
-        phoneInputView= (IntlPhoneInput) findViewById(R.id.phone_input);
+    private void bindUI() {
+        verifyButton = (Button) findViewById(R.id.verifyButton);
+        phoneInputView = (IntlPhoneInput) findViewById(R.id.phone_input);
     }
 
-    private void verifyNumber(){
+    private void verifyNumber() {
         String myInternationalNumber;
-        if(phoneInputView.isValid()) {
+        if (phoneInputView.isValid()) {
             myInternationalNumber = phoneInputView.getNumber();
             phoneAuth(myInternationalNumber);
-        }else{
+        } else {
             Toast.makeText(this, "Numero no valido", Toast.LENGTH_SHORT).show();
         }
     }
 
-    public void phoneAuth(String number){
+    public void phoneAuth(String number) {
         PhoneAuthProvider.getInstance().verifyPhoneNumber(
                 number,        // Phone number to verify
                 60,                 // Timeout duration
@@ -113,14 +111,13 @@ public class signIn extends AppCompatActivity {
                     }
 
 
-
                     @Override
                     public void onCodeSent(String verificationId,
                                            PhoneAuthProvider.ForceResendingToken token) {
 
                         Log.d(TAG, "onCodeSent:" + verificationId);
 
-                       // mVerificationId = verificationId;
+                        // mVerificationId = verificationId;
                         //mResendToken = token;
                         createIntentSMS(verificationId);
 
@@ -128,9 +125,9 @@ public class signIn extends AppCompatActivity {
                 });
     }
 
-    private void createIntentSMS(String verificationID){
-        Intent intent = new Intent ( signIn.this ,SMS_Code.class );
-        intent.putExtra( "verificationID", verificationID );
+    private void createIntentSMS(String verificationID) {
+        Intent intent = new Intent(signIn.this, SMS_Code.class);
+        intent.putExtra("verificationID", verificationID);
         startActivity(intent);
 
     }
@@ -138,7 +135,7 @@ public class signIn extends AppCompatActivity {
     private void signInWithPhoneAuthCredential(PhoneAuthCredential credential) {
         FirebaseAuth mAuth = FirebaseAuth.getInstance();
         mAuth.signInWithCredential(credential)
-                .addOnCompleteListener( this, new OnCompleteListener<AuthResult>() {
+                .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         if (task.isSuccessful()) {
@@ -147,11 +144,8 @@ public class signIn extends AppCompatActivity {
 
                             FirebaseUser userF = task.getResult().getUser();
                             user = new User();
-                            if(!signInAuth.Configured()){
-                                pickContact();
-                            }else{
-                                sendHome();
-                            }
+                            Configured();
+
                         } else {
                             // Sign in failed, display a message and update the UI
                             Log.w(TAG, "signInWithCredential:failure", task.getException());
@@ -163,53 +157,50 @@ public class signIn extends AppCompatActivity {
                 });
     }
 
-    private void sendHome(){
-        Intent intent = new Intent ( signIn.this ,HomeActivity.class );
+
+    private void sendHome() {
+        Intent intent = new Intent(signIn.this, HomeActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         startActivity(intent);
     }
 
 
-    private void pickContact(){
-        Intent contactPickerIntent = new Intent(Intent.ACTION_PICK,
-                ContactsContract.CommonDataKinds.Phone.CONTENT_URI);
-        startActivityForResult(contactPickerIntent, RESULT_PICK_CONTACT);
+    private void pickContact() {
+        Intent intent = new Intent(getApplicationContext(), emergencyPhone.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        startActivity(intent);
 
     }
 
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        // check whether the result is ok
-        if (resultCode == RESULT_OK) {
-            // Check for the request code, we might be usign multiple startActivityForReslut
-            switch (requestCode) {
-                case RESULT_PICK_CONTACT:
-                    Log.d(TAG, "----- Contact picked");
-                    emergencyContact(data);
-                    break;
+    public void Configured() {
+        FirebaseUser userF = FirebaseAuth.getInstance().getCurrentUser();
+        DatabaseReference mDatabase = FirebaseDatabase.getInstance().getReference();
+        DatabaseReference userData = mDatabase.child("users").child(userF.getUid());
+        Log.d("signInAuth", "-----------> " + userData.toString());
+        userData.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                User user = dataSnapshot.getValue(User.class);
+                if (user != null)
+                    if (user.getEmergencyNumber() != null){
+                        sendHome();
+                    }else{
+                        pickContact();
+                    }
             }
-        } else {
-            Log.e(TAG, "Failed to pick contact");
-        }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+                Log.d("sigmInAuth", "Configured-------> " + databaseError.toString());
+            }
+        });
     }
 
-    private void emergencyContact(Intent data){
-        try{
-            Uri uri= data.getData();
-            Cursor cursor= getContentResolver().query(uri,null,null,null, null);
-            cursor.moveToFirst();
-            int phone= cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER);
-            String phoneNumber= cursor.getString(phone);
-            Log.d(TAG, "----- Number " + phoneNumber);
-            user= new User();
-            user.setEmergencyNumber(phoneNumber);
-            cursor.close();
-            signInAuth.saveUser(user);
-            sendHome();
-
-        }catch (Exception e){
-            e.printStackTrace();
-        }
-    }
 
 }
 

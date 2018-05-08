@@ -1,8 +1,15 @@
 package otamendi.urtzi.com.safeway.Utils;
 
-import android.graphics.Bitmap;
+        import android.graphics.Bitmap;
+        import android.util.Log;
 
-import net.glxn.qrgen.android.QRCode;
+        import com.google.firebase.auth.FirebaseAuth;
+
+        import net.glxn.qrgen.android.QRCode;
+
+        import org.json.JSONException;
+        import org.json.JSONObject;
+        import org.json.JSONStringer;
 
 /**
  * Created by urtzi on 07/05/2018.
@@ -10,8 +17,10 @@ import net.glxn.qrgen.android.QRCode;
 
 public class generateQR {
 
-    public Bitmap generateFromString(String text){
-         Bitmap bitmap= QRCode.from(text).withSize(1000,1000).bitmap();
+    public static Bitmap generateFromString(String text){
+        String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
+
+        Bitmap bitmap= QRCode.from(text+" "+uid).withSize(1000,1000).bitmap();
         return bitmap;
     }
 }

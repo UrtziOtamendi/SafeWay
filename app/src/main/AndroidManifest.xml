@@ -2,6 +2,10 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="otamendi.urtzi.com.safeway">
 
+
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.permission.READ_CONTACTS" />
+
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
@@ -21,11 +25,9 @@
             </intent-filter>
         </activity>
         <activity android:name=".Activities.SMS_Code" />
-        <activity
-            android:name=".Activities.HomeActivity"
-            android:label="@string/title_activity_home" />
+        <activity android:name=".Activities.HomeActivity" android:label="@string/title_activity_home" />
+        <activity android:name=".Activities.scannerQR"/>
+        <activity android:name=".Activities.emergencyPhone" />
     </application>
-    <uses-permission android:name="android.permission.CAMERA" />
-    <uses-permission android:name="android.permission.READ_CONTACTS" />
 
 </manifest>

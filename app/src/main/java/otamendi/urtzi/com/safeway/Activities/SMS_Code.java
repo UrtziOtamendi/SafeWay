@@ -89,4 +89,13 @@ public class SMS_Code extends AppCompatActivity {
         Intent intent = new Intent ( SMS_Code.this ,HomeActivity.class );
         startActivity(intent);
     }
+
+    private void pickContact(){
+        Intent intent = new Intent(getApplicationContext(), emergencyPhone.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        startActivity(intent);
+
+    }
 }

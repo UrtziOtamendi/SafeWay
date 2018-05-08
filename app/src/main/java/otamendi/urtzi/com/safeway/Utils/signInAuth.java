@@ -18,7 +18,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import otamendi.urtzi.com.safeway.Domain.User;
-import otamendi.urtzi.com.safeway.R;
 
 /**
  * Created by urtzi on 07/05/2018.
@@ -37,12 +36,14 @@ public  class signInAuth {
         FirebaseUser userF = FirebaseAuth.getInstance().getCurrentUser();
         DatabaseReference mDatabase= FirebaseDatabase.getInstance().getReference();
         DatabaseReference userData= mDatabase.child("users").child(userF.getUid());
+        Log.d("signInAuth","-----------> "+ userData.toString());
         User user= null;
         final List<User> tokenContainer = new ArrayList<>();
         userData.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 User user= dataSnapshot.getValue(User.class);
+                Log.i("signInAuth","------> User: "+ (user == null));
                 tokenContainer.add(user);
             }
 
@@ -55,8 +56,13 @@ public  class signInAuth {
         if(tokenContainer.size()!=0)
             user=tokenContainer.get(0);
 
+        if(user==null) {
+            Log.w("signInAuth", "-----> User null");
+            return false;
+        }else{
+            return  (user.getEmergencyNumber()!=null) ? true : false;
+        }
 
-        return (user.getEmergencyNumber()!=null) ? true : false;
     }
 
     public static User getUser() {
