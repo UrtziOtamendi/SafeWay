@@ -2,7 +2,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="otamendi.urtzi.com.safeway">
 
-
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.READ_CONTACTS" />
 
@@ -13,8 +12,6 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-
-
         <activity
             android:name=".Activities.signIn"
             android:label="@string/app_name">
@@ -25,9 +22,12 @@
             </intent-filter>
         </activity>
         <activity android:name=".Activities.SMS_Code" />
-        <activity android:name=".Activities.HomeActivity" android:label="@string/title_activity_home" />
-        <activity android:name=".Activities.scannerQR"/>
+        <activity
+            android:name=".Activities.HomeActivity"
+            android:label="@string/title_activity_home" />
+        <activity android:name=".Activities.scannerQR" />
         <activity android:name=".Activities.emergencyPhone" />
+        <activity android:name=".Activities.PasswordConfig"></activity>
     </application>
 
 </manifest>

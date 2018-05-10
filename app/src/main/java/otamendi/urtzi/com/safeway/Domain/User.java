@@ -10,26 +10,36 @@ import java.util.Map;
 public class User {
 
     private String emergencyNumber;
-    private Map<Integer, String> linkedID = new HashMap<>();
+    private String password;
+    private Map<Integer, String> linkedWithID = new HashMap<>();
 
 
-
+// Constructor
     public User(){
 
     }
+    public User(String emNum){
+        emergencyNumber=emNum;
+    }
+    public User(String emNum, String pass){
+        emergencyNumber=emNum;
+        password=pass;
+    }
 
     public void linkID(String ID){
-        int i =linkedID.size();
+        int i =linkedWithID.size();
         i++;
-        linkedID.put(i,ID);
+        linkedWithID.put(i,ID);
     }
 
     public Map<String, Object> toMap() {
         HashMap<String, Object> result = new HashMap<>();
 
         result.put("emergencyNumber", emergencyNumber);
-        result.put("linkedCount",linkedID.size());
-        result.put("linkedID", linkedID);
+        result.put("password", password);
+
+        result.put("linkedCount",linkedWithID.size());
+        result.put("linkedID", linkedWithID);
 
         return result;
     }
@@ -39,15 +49,11 @@ public class User {
         return emergencyNumber;
     }
 
-    public void setEmergencyNumber(String emergencyNumber) {
-        this.emergencyNumber = emergencyNumber;
+    public Map<Integer, String> getLinkedWithID() {
+        return linkedWithID;
     }
 
-    public Map<Integer, String> getLinkedID() {
-        return linkedID;
-    }
-
-    public void setLinkedID(Map<Integer, String> linkedID) {
-        this.linkedID = linkedID;
+    public String getPassword() {
+        return password;
     }
 }

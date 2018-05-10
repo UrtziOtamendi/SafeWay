@@ -164,15 +164,15 @@ public class signIn extends AppCompatActivity {
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         startActivity(intent);
+        finish();
     }
 
 
     private void pickContact() {
-        Intent intent = new Intent(getApplicationContext(), emergencyPhone.class);
-        intent.setFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
-        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        Intent intent = new Intent(signIn.this, emergencyPhone.class);
+
         startActivity(intent);
+        finish();
 
     }
 
@@ -185,12 +185,11 @@ public class signIn extends AppCompatActivity {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 User user = dataSnapshot.getValue(User.class);
-                if (user != null)
-                    if (user.getEmergencyNumber() != null){
-                        sendHome();
-                    }else{
-                        pickContact();
-                    }
+                if (user != null) {
+                    sendHome();
+                }else{
+                    pickContact();
+                }
             }
 
             @Override

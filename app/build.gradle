@@ -45,7 +45,7 @@ dependencies {
     //Code input
     implementation 'com.raycoarana.codeinputview:codeinputview:1.2.5'
     //QR
-    implementation  'me.dm7.barcodescanner:zxing:1.9.8'
+    implementation 'me.dm7.barcodescanner:zxing:1.9.8'
     implementation 'com.github.kenglxn.QRGen:android:2.4.0'
 }
 

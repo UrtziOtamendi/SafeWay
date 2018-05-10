@@ -23,12 +23,16 @@ public class emergencyPhone  extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        pickContact();
+
+    }
+
+    private void pickContact(){
         Intent contactPickerIntent = new Intent(Intent.ACTION_PICK,
                 ContactsContract.CommonDataKinds.Phone.CONTENT_URI);
         startActivityForResult(contactPickerIntent, RESULT_PICK_CONTACT);
 
     }
-
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -54,11 +58,8 @@ public class emergencyPhone  extends AppCompatActivity {
             int phone= cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER);
             String phoneNumber= cursor.getString(phone);
             Log.d(TAG, "----- Number " + phoneNumber);
-            User user= new User();
-            user.setEmergencyNumber(phoneNumber);
             cursor.close();
-            signInAuth.saveUser(user);
-            sendHome();
+            sendPasswordConfig(phoneNumber);
 
 
         }catch (Exception e){
@@ -66,8 +67,10 @@ public class emergencyPhone  extends AppCompatActivity {
         }
     }
 
-    private void sendHome(){
-        Intent intent = new Intent ( emergencyPhone.this ,HomeActivity.class );
+    private void sendPasswordConfig(String phone){
+
+        Intent intent = new Intent ( emergencyPhone.this ,PasswordConfig.class );
+        intent.putExtra("emergencyPhone", phone);
         startActivity(intent);
     }
 
