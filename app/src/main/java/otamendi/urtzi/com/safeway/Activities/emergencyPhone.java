@@ -1,5 +1,6 @@
 package otamendi.urtzi.com.safeway.Activities;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
@@ -13,7 +14,7 @@ import otamendi.urtzi.com.safeway.Domain.User;
 import otamendi.urtzi.com.safeway.R;
 import otamendi.urtzi.com.safeway.Utils.signInAuth;
 
-public class emergencyPhone  extends AppCompatActivity {
+public class emergencyPhone  extends Activity {
 
 
     private static final int RESULT_PICK_CONTACT = 10;

@@ -1,5 +1,6 @@
 package otamendi.urtzi.com.safeway.Activities;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.Bundle;
@@ -16,29 +17,23 @@ import android.widget.LinearLayout;
 import android.widget.Toast;
 
 
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+
+import otamendi.urtzi.com.safeway.Domain.linkedID;
 import otamendi.urtzi.com.safeway.R;
 import otamendi.urtzi.com.safeway.Utils.generateQR;
 
-public class HomeActivity extends AppCompatActivity {
+public class HomeActivity extends Activity {
 
 
     private static final String TAG = "HOME";
-    private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
-            = new BottomNavigationView.OnNavigationItemSelectedListener() {
 
-        @Override
-        public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-            switch (item.getItemId()) {
-                case R.id.navigation_home:
-                    return true;
-                case R.id.navigation_dashboard:
-                    return true;
-                case R.id.navigation_notifications:
-                    return true;
-            }
-            return false;
-        }
-    };
 
     private EditText codeNameQR;
     private Button createQR,readQR;
@@ -49,8 +44,6 @@ public class HomeActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
 
-        BottomNavigationView navigation = (BottomNavigationView) findViewById(R.id.navigation);
-        navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
 
         //Get elements
         bindUI();
@@ -70,7 +63,7 @@ public class HomeActivity extends AppCompatActivity {
         readQR.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-               readQR();
+                getLinkedUser();
             }
         });
     }
@@ -90,8 +83,43 @@ public class HomeActivity extends AppCompatActivity {
     }
 
 
-    private void readQR(){
-        Intent intent = new Intent(HomeActivity.this, scannerQR.class);
+    private void getLinkedUser() {
+        FirebaseUser userF = FirebaseAuth.getInstance().getCurrentUser();
+        DatabaseReference mDatabase= FirebaseDatabase.getInstance().getReference();
+        DatabaseReference userData= mDatabase.child("linkedID").child(userF.getUid());
+
+        userData.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                linkedID linkedID= dataSnapshot.getValue(linkedID.class);
+                checkLinkAvailable(linkedID);
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                Toast.makeText(HomeActivity.this,"An error occurred! Try again later", Toast.LENGTH_LONG).show();
+                Log.d(TAG, "GetLinked-------> "+databaseError.toString() );
+            }
+        });
+
+
+    }
+
+    private void checkLinkAvailable(linkedID linker){
+        if(linker!=null) {
+            if (linker.getLink1() == null || linker.getLink2() == null) {
+                sendToLink();
+            } else {
+                Toast.makeText(HomeActivity.this, "You have linked accounts already", Toast.LENGTH_LONG).show();
+            }
+        }else{
+            sendToLink();
+        }
+
+    }
+
+    private void sendToLink( ){
+        Intent intent= new Intent(HomeActivity.this, Auth_Link.class);
         startActivity(intent);
     }
 

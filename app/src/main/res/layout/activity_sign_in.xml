@@ -8,26 +8,32 @@
     tools:context="otamendi.urtzi.com.safeway.Activities.signIn">
 
 
-
     <net.rimoto.intlphoneinput.IntlPhoneInput
+        android:id="@+id/phone_input"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:textSize="14sp"
+        android:layout_marginTop="50dp"
+        android:layout_gravity="center_horizontal"
+        app:flagPaddingBottom="0dp"
+        app:flagPaddingEnd="0dp"
+        app:flagPaddingStart="0dp"
+        app:flagPaddingTop="0dp"
         app:textColor="#000000"
-        app:flagPaddingBottom="4dp"
-        app:flagPaddingEnd="4dp"
-        app:flagPaddingStart="4dp"
-        app:flagPaddingTop="4dp"
-        android:id="@+id/phone_input" />
+        app:textSize="28sp" />
+
 
     <Button
         android:id="@+id/verifyButton"
-        android:layout_width="wrap_content"
+        style="@android:style/Widget.Material.Button.Colored"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_alignParentStart="true"
         android:layout_below="@+id/phone_input"
-        android:layout_marginTop="185dp"
-        android:text="Verify" />
-
+        android:layout_gravity="center_horizontal"
+        android:layout_marginBottom="20dp"
+        android:layout_marginTop="100dp"
+        android:elevation="@dimen/activity_horizontal_margin"
+        android:paddingLeft="50dp"
+        android:paddingRight="50dp"
+        android:text="@string/button_authenticate" />
 
 </LinearLayout>

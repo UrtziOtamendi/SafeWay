@@ -1,7 +1,19 @@
 <resources>
     <string name="app_name" translatable="false">SafeWay</string>
+
     <string name="title_activity_home">HomeActivity</string>
     <string name="title_home">Home</string>
+    <string name="title_phoneAuth">Phone Authentication</string>
+    <string name="title_SMS">SMS Code</string>
+    <string name="title_Password">Password</string>
+
+    <string name="button_authenticate">Authenticate</string>
+    <string name="button_SMS_code">Check</string>
+    <string name="button_password">Set Password</string>
+
+
     <string name="title_dashboard">Dashboard</string>
     <string name="title_notifications">Notifications</string>
+    <string name="insert_phone">Insert your Phone number and country</string>
+    <string name="title_activity_auth__link">Auth_Link</string>
 </resources>

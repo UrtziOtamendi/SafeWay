@@ -1,5 +1,6 @@
 package otamendi.urtzi.com.safeway.Activities;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
@@ -8,6 +9,7 @@ import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
+import android.view.Window;
 import android.widget.Button;
 import android.widget.Toast;
 
@@ -39,7 +41,7 @@ import otamendi.urtzi.com.safeway.Domain.User;
 import otamendi.urtzi.com.safeway.R;
 import otamendi.urtzi.com.safeway.Utils.signInAuth;
 
-public class signIn extends AppCompatActivity {
+public class signIn extends Activity {
 
     private static final String TAG = "SignIn";
     private static final int RESULT_PICK_CONTACT = 10;
@@ -50,6 +52,7 @@ public class signIn extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        hideActionBar();
         setContentView(R.layout.activity_sign_in);
         if (signInAuth.SignedIn()) {
             Configured();
@@ -141,9 +144,6 @@ public class signIn extends AppCompatActivity {
                         if (task.isSuccessful()) {
                             // Sign in success, update UI with the signed-in User's information
                             Log.d(TAG, "signInWithCredential:success");
-
-                            FirebaseUser userF = task.getResult().getUser();
-                            user = new User();
                             Configured();
 
                         } else {
@@ -198,6 +198,10 @@ public class signIn extends AppCompatActivity {
                 Log.d("sigmInAuth", "Configured-------> " + databaseError.toString());
             }
         });
+    }
+
+    private void hideActionBar(){
+        requestWindowFeature(Window.FEATURE_NO_TITLE);
     }
 
 

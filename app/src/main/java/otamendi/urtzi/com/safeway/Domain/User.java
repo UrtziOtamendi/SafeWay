@@ -11,7 +11,7 @@ public class User {
 
     private String emergencyNumber;
     private String password;
-    private Map<Integer, String> linkedWithID = new HashMap<>();
+    private Map<String, String> linkedWithID = new HashMap<>();
 
 
 // Constructor
@@ -26,10 +26,9 @@ public class User {
         password=pass;
     }
 
-    public void linkID(String ID){
-        int i =linkedWithID.size();
-        i++;
-        linkedWithID.put(i,ID);
+    public void linkID(String name, String ID){
+
+        linkedWithID.put(name,ID);
     }
 
     public Map<String, Object> toMap() {
@@ -37,8 +36,6 @@ public class User {
 
         result.put("emergencyNumber", emergencyNumber);
         result.put("password", password);
-
-        result.put("linkedCount",linkedWithID.size());
         result.put("linkedID", linkedWithID);
 
         return result;
@@ -49,7 +46,7 @@ public class User {
         return emergencyNumber;
     }
 
-    public Map<Integer, String> getLinkedWithID() {
+    public Map<String, String> getLinkedWithID() {
         return linkedWithID;
     }
 
