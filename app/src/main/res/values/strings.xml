@@ -16,4 +16,19 @@
     <string name="title_notifications">Notifications</string>
     <string name="insert_phone">Insert your Phone number and country</string>
     <string name="title_activity_auth__link">Auth_Link</string>
+    <string name="title_activity_save_location">Save Location</string>
+    <string name="saveLocation_GPS_Request_title">GPS</string>
+    <string name="saveLocation_GPS_Request_message">Give me permission</string>
+    <string name="ok">Ok</string>
+    <string name="saveLocation_current_title">You are here</string>
+    <string name="map_not_loaded">Map not loaded yet... Wait</string>
+    <string name="point_not_selected">You have to select one location</string>
+    <string name="error_saving_location">An error ocurred saving location, sory</string>
+    <string name="set_new_location_title">Location Name</string>
+    <string name="set_new_location_message">Set one name to identify this location</string>
+    <string name="location_name_empty">Insert location name</string>
+    <string name="cancel">Cancel</string>
+    <string name="user_not_found">User not found</string>
+    <string name="wrong_qr">Wrong QR code</string>
+    <string name="error">An error occurred, sorry</string>
 </resources>

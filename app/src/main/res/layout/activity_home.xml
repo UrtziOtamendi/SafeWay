@@ -29,6 +29,12 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Read" />
+    <Button
+        android:id="@+id/addLocation"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Add Location" />
+
 
     <LinearLayout
         android:id="@+id/imageLayout"

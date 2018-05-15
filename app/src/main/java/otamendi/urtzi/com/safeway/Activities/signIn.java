@@ -32,6 +32,7 @@ import java.util.concurrent.TimeUnit;
 import android.util.Log;
 
 import otamendi.urtzi.com.safeway.Domain.User;
+import otamendi.urtzi.com.safeway.FirebasseMessaginService.FCMService;
 import otamendi.urtzi.com.safeway.R;
 import otamendi.urtzi.com.safeway.Utils.AuthService;
 import otamendi.urtzi.com.safeway.Utils.DatabaseService;
@@ -51,6 +52,7 @@ public class signIn extends Activity {
         hideActionBar();
         setContentView(R.layout.activity_sign_in);
         if (AuthService.SignedIn()) {
+            FCMService.AutoInitEnable();
             DatabaseService.Configured(succesConfig, errorToast);
         }
         bindUI();

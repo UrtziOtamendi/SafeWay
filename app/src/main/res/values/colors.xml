@@ -6,4 +6,5 @@
     <color name="accent_material_light">#070707</color>
     <color name="primary_material_light">#ffffff</color>
     <color name="background_material_light">#f5f5f5</color>
+    <color name="transparent">#00f1f0e6</color>
 </resources>

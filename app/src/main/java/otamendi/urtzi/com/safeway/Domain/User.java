@@ -51,6 +51,17 @@ public class User {
     }
 
 
+    @Override
+    public String toString() {
+        return "User{" +
+                "emergencyNumber='" + emergencyNumber + '\'' +
+                ", password='" + password + '\'' +
+                ", link=" + link +
+                ", linkedWithID=" + linkedWithID.toString() +
+                ", notificationToken='" + notificationToken + '\'' +
+                '}';
+    }
+
     public String getEmergencyNumber() {
         return emergencyNumber;
     }
@@ -69,5 +80,25 @@ public class User {
 
     public linkedID getLink() {
         return link;
+    }
+
+    public void setEmergencyNumber(String emergencyNumber) {
+        this.emergencyNumber = emergencyNumber;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public void setLink(linkedID link) {
+        this.link = link;
+    }
+
+    public void setLinkedWithID(Map<String, String> linkedWithID) {
+        this.linkedWithID = linkedWithID;
+    }
+
+    public void setNotificationToken(String notificationToken) {
+        this.notificationToken = notificationToken;
     }
 }

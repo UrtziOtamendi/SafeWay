@@ -15,6 +15,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import otamendi.urtzi.com.safeway.Domain.User;
+import otamendi.urtzi.com.safeway.Domain.linkedID;
+import otamendi.urtzi.com.safeway.Domain.myLocation;
 import otamendi.urtzi.com.safeway.FirebasseMessaginService.FCMService;
 
 public class DatabaseService {
@@ -25,13 +27,34 @@ public class DatabaseService {
         FirebaseUser userF = FirebaseAuth.getInstance().getCurrentUser();
         DatabaseReference mDatabase= FirebaseDatabase.getInstance().getReference();
         DatabaseReference userData= mDatabase.child("users").child(userF.getUid());
-        User user= null;
-        final List<User> tokenContainer = new ArrayList<>();
         userData.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 User user= dataSnapshot.getValue(User.class);
+                if(user!=null) Log.d(TAG, user.toString());
                 finishedCallback.callback(user);
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                errorCallback.callback("An error occurred! Try again later");
+                Log.d("sigmInAuth", "Configured-------> "+databaseError.toString() );
+            }
+        });
+
+    }
+
+    public static void getUsersLinks(@NonNull final SimpleCallback<linkedID> finishedCallback, @NonNull final SimpleCallback<String> errorCallback) {
+        FirebaseUser userF = FirebaseAuth.getInstance().getCurrentUser();
+        DatabaseReference mDatabase= FirebaseDatabase.getInstance().getReference();
+        DatabaseReference userData= mDatabase.child("users").child(userF.getUid()).child("receptorsID");
+        userData.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+
+                linkedID linkers= dataSnapshot.getValue(linkedID.class);
+                if(linkers!=null) Log.d(TAG, linkers.toString());
+                finishedCallback.callback(linkers);
             }
 
             @Override
@@ -45,19 +68,29 @@ public class DatabaseService {
 
     public static void saveUser(User user){
         DatabaseReference mDatabase= FirebaseDatabase.getInstance().getReference();
-        mDatabase.child("users").child(FirebaseAuth.getInstance().getCurrentUser().getUid()).setValue(user.toMap());
-        FCMService.AutoInitEnable();
+        mDatabase.child("users").child(FirebaseAuth.getInstance().getCurrentUser().getUid()).setValue(user);
+    }
+    public static void saveLinks(linkedID links){
+        DatabaseReference mDatabase= FirebaseDatabase.getInstance().getReference();
+        mDatabase.child("users").child(FirebaseAuth.getInstance().getCurrentUser().getUid()).child("receptorsID").setValue(links);
     }
 
 
-    private  static void userExists( String senderUID, @NonNull final SimpleCallback<Boolean> finishedCallback,  @NonNull final SimpleCallback<String> errorCallback ){
+    public static void saveLocation(myLocation location){
+        DatabaseReference mDatabase= FirebaseDatabase.getInstance().getReference();
+        mDatabase.child("locations").child(FirebaseAuth.getInstance().getCurrentUser().getUid()).child(location.getName()).setValue(location);
+    }
+
+
+    public  static void userExists( String senderUID, @NonNull final SimpleCallback<Boolean> finishedCallback,  @NonNull final SimpleCallback<String> errorCallback ){
         DatabaseReference mDatabase= FirebaseDatabase.getInstance().getReference();
         DatabaseReference userData= mDatabase.child("users").child(senderUID);
 
-        userData.addValueEventListener(new ValueEventListener() {
+        userData.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 try {
+
                     User sender = dataSnapshot.getValue(User.class);
                     Log.d(TAG, "Sernder------> IS null ?" + (sender == null));
                     if (sender == null) {
@@ -84,7 +117,7 @@ public class DatabaseService {
         DatabaseReference mDatabase = FirebaseDatabase.getInstance().getReference();
         DatabaseReference userData = mDatabase.child("users").child(userF.getUid());
         Log.d("AuthService", "-----------> " + userData.toString());
-        userData.addValueEventListener(new ValueEventListener() {
+        userData.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 User user = dataSnapshot.getValue(User.class);

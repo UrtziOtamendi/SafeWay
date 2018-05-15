@@ -17,6 +17,7 @@ import com.google.zxing.Result;
 import me.dm7.barcodescanner.zxing.ZXingScannerView;
 import otamendi.urtzi.com.safeway.Domain.User;
 import otamendi.urtzi.com.safeway.Domain.linkedID;
+import otamendi.urtzi.com.safeway.R;
 import otamendi.urtzi.com.safeway.Utils.AuthService;
 import otamendi.urtzi.com.safeway.Utils.DatabaseService;
 import otamendi.urtzi.com.safeway.Utils.SimpleCallback;
@@ -67,20 +68,32 @@ public class scannerQR  extends AppCompatActivity implements ZXingScannerView.Re
             senderName= split[0];
             Log.d(TAG, "sender name--->"+ senderName);
             senderUID= split[1];
-            DatabaseService.getUser(new SimpleCallback<User>(){
-                @Override
-                public void callback(User data) {
-                    getLinkedUser(data);
-                }
-            }, errorToast );
+            DatabaseService.userExists(senderUID, getUserCallback, errorToastCallback);
         }catch (Exception e){
-            Toast.makeText(scannerQR.this,"Wrong QR code", Toast.LENGTH_LONG).show();
+            Toast.makeText(scannerQR.this,R.string.wrong_qr, Toast.LENGTH_LONG).show();
         }
 
     }
 
+    public SimpleCallback<Boolean> getUserCallback= new  SimpleCallback<Boolean>(){
+        @Override
+        public void callback(Boolean data) {
+            if(data){
+                DatabaseService.getUsersLinks(geUserLinkers, errorToastCallback);
+            }else{
+                Toast.makeText(scannerQR.this, R.string.user_not_found, Toast.LENGTH_LONG).show();
+            }
+        }
+    };
 
-    public  SimpleCallback<String> errorToast= new SimpleCallback<String>() {
+    public SimpleCallback<linkedID> geUserLinkers= new SimpleCallback<linkedID>() {
+        @Override
+        public void callback(linkedID data) {
+                getLinkedUser(data);
+        }
+    };
+
+    public  SimpleCallback<String> errorToastCallback= new SimpleCallback<String>() {
         @Override
         public void callback(String data) {
             Toast.makeText(scannerQR.this,data, Toast.LENGTH_LONG).show();
@@ -88,21 +101,22 @@ public class scannerQR  extends AppCompatActivity implements ZXingScannerView.Re
         }
     };
 
-    private void getLinkedUser(User user) {
-        linkedID linkedID= user.getLink();
+    private void getLinkedUser(linkedID linkedID) {
         linkedID newLink;
         if(linkedID==null){
+            Log.d(TAG,"OldDated user don't have any linked ID" + (linkedID ==null));
             newLink= new linkedID(name,senderUID);
         }
         else{
             if(linkedID.getLink1()==null){
+                Log.d(TAG,"OldDated user don't have any linked ID" + (linkedID.getLink1()==null));
                 newLink= new linkedID(name,senderUID);
             }else{
                 newLink= new linkedID(linkedID.getName1(),linkedID.getLink1(),name,senderUID);
             }
         }
-        user.updateLink(newLink);
-        DatabaseService.saveUser(user);
+
+        DatabaseService.saveLinks(newLink);
         linkUsers.linkReceptor(senderUID,senderName);
         finish();
 

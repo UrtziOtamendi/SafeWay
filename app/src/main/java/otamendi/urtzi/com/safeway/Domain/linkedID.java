@@ -1,6 +1,11 @@
 package otamendi.urtzi.com.safeway.Domain;
 
+import android.util.Log;
+
+import com.google.firebase.database.DataSnapshot;
+
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 
 public class linkedID {
@@ -22,7 +27,7 @@ public class linkedID {
 
         link1 =id1;
         link2 =id2;
-        link2 =id2;
+        name1 =nm1;
         name2=nm2;
     }
 
@@ -40,6 +45,32 @@ public class linkedID {
         return result;
     }
 
+    @Override
+    public String toString() {
+        return "linkedID{" +
+                "link1='" + link1 + '\'' +
+                ", link2='" + link2 + '\'' +
+                ", name1='" + name1 + '\'' +
+                ", name2='" + name2 + '\'' +
+                '}';
+    }
+
+    public static linkedID bindDataSnapshot(DataSnapshot data){
+        Log.d("linkedID",data.toString());
+        if(data==null){
+            return new linkedID();
+        }else{
+            Iterator<DataSnapshot> iterator = data.getChildren().iterator();
+            while(iterator.hasNext()){
+                DataSnapshot aux = iterator.next();
+                aux.getKey();
+                aux.getValue();
+            }
+        }
+        return new linkedID();
+    }
+
+
     public String getName1() {
         return name1;
     }
@@ -56,4 +87,19 @@ public class linkedID {
         return link2;
     }
 
+    public void setLink1(String link1) {
+        this.link1 = link1;
+    }
+
+    public void setLink2(String link2) {
+        this.link2 = link2;
+    }
+
+    public void setName1(String name1) {
+        this.name1 = name1;
+    }
+
+    public void setName2(String name2) {
+        this.name2 = name2;
+    }
 }
