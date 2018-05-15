@@ -17,6 +17,9 @@ import com.google.zxing.Result;
 import me.dm7.barcodescanner.zxing.ZXingScannerView;
 import otamendi.urtzi.com.safeway.Domain.User;
 import otamendi.urtzi.com.safeway.Domain.linkedID;
+import otamendi.urtzi.com.safeway.Utils.AuthService;
+import otamendi.urtzi.com.safeway.Utils.DatabaseService;
+import otamendi.urtzi.com.safeway.Utils.SimpleCallback;
 import otamendi.urtzi.com.safeway.Utils.linkUsers;
 
 public class scannerQR  extends AppCompatActivity implements ZXingScannerView.ResultHandler {
@@ -64,82 +67,45 @@ public class scannerQR  extends AppCompatActivity implements ZXingScannerView.Re
             senderName= split[0];
             Log.d(TAG, "sender name--->"+ senderName);
             senderUID= split[1];
-            userExists();
+            DatabaseService.getUser(new SimpleCallback<User>(){
+                @Override
+                public void callback(User data) {
+                    getLinkedUser(data);
+                }
+            }, errorToast );
         }catch (Exception e){
             Toast.makeText(scannerQR.this,"Wrong QR code", Toast.LENGTH_LONG).show();
         }
 
     }
 
-    private void userExists(){
-        DatabaseReference mDatabase= FirebaseDatabase.getInstance().getReference();
-        DatabaseReference userData= mDatabase.child("users").child(senderUID);
-        userData.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                try {
-                    User sender = dataSnapshot.getValue(User.class);
-                    Log.d(TAG, "Sernder------> IS null ?" + (sender == null));
-                    if (sender == null) {
-                        Toast.makeText(scannerQR.this,"Wrong QR code", Toast.LENGTH_LONG).show();
-                    } else {
-                        getLinkedUser();
-                    }
 
-                } catch (NullPointerException e) {
-                    Toast.makeText(scannerQR.this,"An error occurred! Try again later", Toast.LENGTH_LONG).show();
-                    Log.e(TAG, "userExists-------> " + e.toString());
-                }
+    public  SimpleCallback<String> errorToast= new SimpleCallback<String>() {
+        @Override
+        public void callback(String data) {
+            Toast.makeText(scannerQR.this,data, Toast.LENGTH_LONG).show();
+            finish();
+        }
+    };
+
+    private void getLinkedUser(User user) {
+        linkedID linkedID= user.getLink();
+        linkedID newLink;
+        if(linkedID==null){
+            newLink= new linkedID(name,senderUID);
+        }
+        else{
+            if(linkedID.getLink1()==null){
+                newLink= new linkedID(name,senderUID);
+            }else{
+                newLink= new linkedID(linkedID.getName1(),linkedID.getLink1(),name,senderUID);
             }
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-                Toast.makeText(scannerQR.this,"An error occurred! Try again later", Toast.LENGTH_LONG).show();
-                Log.d(TAG, "userExists-------> "+databaseError.toString() );
-                finish();
-            }
-        });
-    }
+        }
+        user.updateLink(newLink);
+        DatabaseService.saveUser(user);
+        linkUsers.linkReceptor(senderUID,senderName);
+        finish();
 
-    private void getLinkedUser() {
-        FirebaseUser userF = FirebaseAuth.getInstance().getCurrentUser();
-        DatabaseReference mDatabase= FirebaseDatabase.getInstance().getReference();
-        DatabaseReference userData= mDatabase.child("linkedID").child(userF.getUid());
-
-        userData.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                try{
-                    linkedID newLink;
-                    linkedID linkedID= dataSnapshot.getValue(linkedID.class);
-                    Log.d(TAG, "GetLinked-------> IS null ?"+ (linkedID==null) );
-                    if(linkedID==null){
-                        newLink= new linkedID(name,senderUID);
-                    }
-                    else{
-                        if(linkedID.getLink1()==null){
-                            newLink= new linkedID(name,senderUID);
-                        }else{
-                            newLink= new linkedID(linkedID.getName1(),linkedID.getLink1(),name,senderUID);
-                        }
-                    }
-
-
-                    linkUsers.saveLinker(newLink);
-                    linkUsers.linkReceptor(senderUID,senderName);
-                    finish();
-                }catch (NullPointerException e){
-                    Toast.makeText(scannerQR.this,"An error occurred! Try again later", Toast.LENGTH_LONG).show();
-                    Log.e(TAG, "GetLinked-------> "+e.toString());
-                }
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-                Toast.makeText(scannerQR.this,"An error occurred! Try again later", Toast.LENGTH_LONG).show();
-                Log.d(TAG, "GetLinked-------> "+databaseError.toString() );
-                finish();
-            }
-        });
     }
 
 

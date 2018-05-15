@@ -10,22 +10,9 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
-
-import java.util.ArrayList;
-import java.util.List;
-
-import otamendi.urtzi.com.safeway.Domain.User;
-import otamendi.urtzi.com.safeway.Domain.linkedID;
 import otamendi.urtzi.com.safeway.R;
 
-public class Auth_Link extends Activity {
+public class linkUsers extends Activity {
 
     private Button skipButton;
     private EditText linkedUserName;
@@ -50,7 +37,7 @@ public class Auth_Link extends Activity {
                 if(name!= null && !name.equals("")){
                     readQR(name);
                 }else{
-                    Toast.makeText(Auth_Link.this,"Incorrect Name", Toast.LENGTH_LONG).show();
+                    Toast.makeText(linkUsers.this,"Incorrect Name", Toast.LENGTH_LONG).show();
 
                 }
             }
@@ -64,7 +51,7 @@ public class Auth_Link extends Activity {
     }
 
     private void sendHome() {
-        Intent intent = new Intent(Auth_Link.this, HomeActivity.class);
+        Intent intent = new Intent(linkUsers.this, HomeActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -74,7 +61,7 @@ public class Auth_Link extends Activity {
 
 
     private void readQR(String name){
-        Intent intent = new Intent(Auth_Link.this, scannerQR.class);
+        Intent intent = new Intent(linkUsers.this, scannerQR.class);
         intent.putExtra("linkedUserName", name);
         startActivity(intent);
     }

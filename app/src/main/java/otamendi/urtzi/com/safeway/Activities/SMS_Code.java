@@ -1,17 +1,14 @@
 package otamendi.urtzi.com.safeway.Activities;
 
 import android.app.Activity;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.support.annotation.NonNull;
-import android.support.v7.app.AlertDialog;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.view.Window;
 import android.widget.Button;
+import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -32,7 +29,8 @@ import java.util.concurrent.Executor;
 
 import otamendi.urtzi.com.safeway.Domain.User;
 import otamendi.urtzi.com.safeway.R;
-import otamendi.urtzi.com.safeway.Utils.signInAuth;
+import otamendi.urtzi.com.safeway.Utils.DatabaseService;
+import otamendi.urtzi.com.safeway.Utils.SimpleCallback;
 
 public class SMS_Code extends Activity {
 
@@ -79,7 +77,8 @@ public class SMS_Code extends Activity {
                         if (task.isSuccessful()) {
                             // Sign in success, update UI with the signed-in User's information
                             Log.d(TAG, "signInWithCredential:success");
-                            Configured();
+
+                            DatabaseService.Configured(succesConfig, errorToast);
                         } else {
                             // Sign in failed, display a message and update the UI
                             Log.w(TAG, "signInWithCredential:failure", task.getException());
@@ -107,29 +106,25 @@ public class SMS_Code extends Activity {
 
     }
 
-    public void Configured() {
-        FirebaseUser userF = FirebaseAuth.getInstance().getCurrentUser();
-        DatabaseReference mDatabase = FirebaseDatabase.getInstance().getReference();
-        DatabaseReference userData = mDatabase.child("users").child(userF.getUid());
-        Log.d("signInAuth", "-----------> " + userData.toString());
-        userData.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                User user = dataSnapshot.getValue(User.class);
-                if (user != null) {
-                    sendHome();
-                }else{
-                    pickContact();
-                }
-            }
+    public SimpleCallback<String> errorToast= new SimpleCallback<String>() {
+        @Override
+        public void callback(String data) {
+            Toast.makeText(SMS_Code.this,data, Toast.LENGTH_LONG).show();
+            finish();
+        }
+    };
 
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-
-                Log.d("sigmInAuth", "Configured-------> " + databaseError.toString());
+    public  SimpleCallback<User> succesConfig= new SimpleCallback<User>() {
+        @Override
+        public void callback(User data) {
+            if(data!=null){
+                sendHome();
+            }else{
+                pickContact();
             }
-        });
-    }
+        }
+    };
+
 
     private void hideActionBar(){
         requestWindowFeature(Window.FEATURE_NO_TITLE);

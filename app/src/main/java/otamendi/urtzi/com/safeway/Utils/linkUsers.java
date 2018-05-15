@@ -12,17 +12,12 @@ import otamendi.urtzi.com.safeway.Domain.linkedID;
 
 public class linkUsers {
 
-    public static void saveLinker(linkedID linker){
-        FirebaseUser userF = FirebaseAuth.getInstance().getCurrentUser();
-        DatabaseReference mDatabase= FirebaseDatabase.getInstance().getReference();
-         mDatabase.child("linkedID").child(userF.getUid()).setValue(linker.toMap());
 
-    }
 
     public static void linkReceptor(String receptorUID, String name){
         FirebaseUser userF = FirebaseAuth.getInstance().getCurrentUser();
         DatabaseReference mDatabase= FirebaseDatabase.getInstance().getReference();
-        mDatabase.child("users").child(receptorUID).child("linkedID").child(name).setValue(userF.getUid());
+        mDatabase.child("users").child(userF.getUid()).child("linkedID").child(name).setValue(receptorUID);
     }
 
 }

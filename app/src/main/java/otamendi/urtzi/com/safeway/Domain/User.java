@@ -10,9 +10,10 @@ import java.util.Map;
 public class User {
 
     private String emergencyNumber;
-    private String password;
+    private String password ;
+    private linkedID link;
     private Map<String, String> linkedWithID = new HashMap<>();
-
+    private String notificationToken;
 
 // Constructor
     public User(){
@@ -21,9 +22,15 @@ public class User {
     public User(String emNum){
         emergencyNumber=emNum;
     }
-    public User(String emNum, String pass){
+    public User(String emNum, String pass, String token){
         emergencyNumber=emNum;
         password=pass;
+        notificationToken=token;
+        link= new linkedID();
+    }
+
+    public void updateLink(linkedID newLink){
+        link=newLink;
     }
 
     public void linkID(String name, String ID){
@@ -36,7 +43,9 @@ public class User {
 
         result.put("emergencyNumber", emergencyNumber);
         result.put("password", password);
-        result.put("linkedID", linkedWithID);
+        result.put("notificationToken", notificationToken);
+        result.put("linkedIDs", linkedWithID);
+        result.put("receptorsID", link.toMap());
 
         return result;
     }
@@ -52,5 +61,13 @@ public class User {
 
     public String getPassword() {
         return password;
+    }
+
+    public String getNotificationToken() {
+        return notificationToken;
+    }
+
+    public linkedID getLink() {
+        return link;
     }
 }

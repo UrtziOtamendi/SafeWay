@@ -4,11 +4,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.design.widget.BottomNavigationView;
-import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -88,7 +84,7 @@ public class HomeActivity extends Activity {
         DatabaseReference mDatabase= FirebaseDatabase.getInstance().getReference();
         DatabaseReference userData= mDatabase.child("linkedID").child(userF.getUid());
 
-        userData.addValueEventListener(new ValueEventListener() {
+        userData.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 linkedID linkedID= dataSnapshot.getValue(linkedID.class);
@@ -119,7 +115,7 @@ public class HomeActivity extends Activity {
     }
 
     private void sendToLink( ){
-        Intent intent= new Intent(HomeActivity.this, Auth_Link.class);
+        Intent intent= new Intent(HomeActivity.this, linkUsers.class);
         startActivity(intent);
     }
 

@@ -6,13 +6,7 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.ContactsContract;
-import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
-import android.view.View;
-
-import otamendi.urtzi.com.safeway.Domain.User;
-import otamendi.urtzi.com.safeway.R;
-import otamendi.urtzi.com.safeway.Utils.signInAuth;
 
 public class emergencyPhone  extends Activity {
 

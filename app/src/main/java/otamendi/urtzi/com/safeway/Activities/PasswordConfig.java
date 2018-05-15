@@ -1,21 +1,18 @@
 package otamendi.urtzi.com.safeway.Activities;
 
-import android.app.ActionBar;
 import android.app.Activity;
 import android.content.Intent;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 
 
-import com.google.firebase.auth.FirebaseAuth;
-
 import otamendi.urtzi.com.safeway.Domain.User;
+import otamendi.urtzi.com.safeway.FirebasseMessaginService.FCMIdService;
 import otamendi.urtzi.com.safeway.R;
-import otamendi.urtzi.com.safeway.Utils.Encrypt;
-import otamendi.urtzi.com.safeway.Utils.signInAuth;
+import otamendi.urtzi.com.safeway.Utils.AuthService;
+import otamendi.urtzi.com.safeway.Utils.DatabaseService;
 
 public class PasswordConfig extends Activity {
 
@@ -27,7 +24,7 @@ public class PasswordConfig extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_password_config);
-        getActionBar().setDisplayHomeAsUpEnabled(true);
+        //getActionBar().setDisplayHomeAsUpEnabled(true);
 
         bindUI();
         passwordButton.setOnClickListener(new View.OnClickListener() {
@@ -54,8 +51,8 @@ public class PasswordConfig extends Activity {
     private void setPassword(String pass){
        // Encrypt encryptModule = new Encrypt();
        // String encryptedPass= new String(encryptModule.encrypt(pass, FirebaseAuth.getInstance().getUid()));
-        User user = new User(emergencyPhone, pass);
-        signInAuth.saveUser(user);
+        User user = new User(emergencyPhone, pass, FCMIdService.getToken());
+        DatabaseService.saveUser(user);
         sendHome();
 
     }

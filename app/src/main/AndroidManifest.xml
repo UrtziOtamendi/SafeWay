@@ -13,6 +13,9 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/MainTheme">
+
+
+        <!-->Activities<!-->
         <activity
             android:name=".Activities.signIn"
             android:label="@string/app_name"
@@ -33,10 +36,41 @@
         <activity android:name=".Activities.emergencyPhone" />
         <activity
             android:name=".Activities.PasswordConfig"
-            android:label="@string/title_Password"></activity>
+            android:label="@string/title_Password" />
         <activity
-            android:name=".Activities.Auth_Link"
-            android:label="@string/title_activity_auth__link"></activity>
+            android:name=".Activities.linkUsers"
+            android:label="@string/title_activity_auth__link" />
+
+        <!-->Services<!-->
+        <service
+            android:name=".FirebasseMessaginService.FCMService"
+            android:enabled="true"
+            android:exported="true" >
+            <intent-filter>
+                <action android:name="com.google.firebase.MESSAGING_EVENT" />
+            </intent-filter>
+        </service>
+        <service
+            android:name=".FirebasseMessaginService.FCMIdService"
+            android:enabled="true"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="com.google.firebase.INSTANCE_ID_EVENT" />
+            </intent-filter>
+        </service>
+
+
+        <meta-data android:name="firebase_messaging_auto_init_enabled"
+            android:value="false" />
+        <meta-data android:name="firebase_analytics_collection_enabled"
+            android:value="false" />
+        <meta-data
+            android:name="com.google.firebase.messaging.default_notification_icon"
+            android:resource="@drawable/ic_launcher_foreground" />
+        <meta-data
+            android:name="com.google.firebase.messaging.default_notification_color"
+            android:resource="@color/colorAccent" />
+
     </application>
 
 </manifest>

@@ -2,11 +2,7 @@ package otamendi.urtzi.com.safeway.Activities;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.database.Cursor;
-import android.net.Uri;
-import android.provider.ContactsContract;
 import android.support.annotation.NonNull;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 import android.view.Window;
@@ -31,15 +27,15 @@ import com.google.firebase.database.ValueEventListener;
 
 import net.rimoto.intlphoneinput.IntlPhoneInput;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import android.util.Log;
 
 import otamendi.urtzi.com.safeway.Domain.User;
 import otamendi.urtzi.com.safeway.R;
-import otamendi.urtzi.com.safeway.Utils.signInAuth;
+import otamendi.urtzi.com.safeway.Utils.AuthService;
+import otamendi.urtzi.com.safeway.Utils.DatabaseService;
+import otamendi.urtzi.com.safeway.Utils.SimpleCallback;
 
 public class signIn extends Activity {
 
@@ -54,8 +50,8 @@ public class signIn extends Activity {
         super.onCreate(savedInstanceState);
         hideActionBar();
         setContentView(R.layout.activity_sign_in);
-        if (signInAuth.SignedIn()) {
-            Configured();
+        if (AuthService.SignedIn()) {
+            DatabaseService.Configured(succesConfig, errorToast);
         }
         bindUI();
         verifyButton.setOnClickListener(
@@ -144,7 +140,7 @@ public class signIn extends Activity {
                         if (task.isSuccessful()) {
                             // Sign in success, update UI with the signed-in User's information
                             Log.d(TAG, "signInWithCredential:success");
-                            Configured();
+                            DatabaseService.Configured(succesConfig, errorToast);
 
                         } else {
                             // Sign in failed, display a message and update the UI
@@ -156,6 +152,26 @@ public class signIn extends Activity {
                     }
                 });
     }
+
+
+    public  SimpleCallback<String> errorToast= new SimpleCallback<String>() {
+        @Override
+        public void callback(String data) {
+            Toast.makeText(signIn.this,data, Toast.LENGTH_LONG).show();
+            finish();
+        }
+    };
+
+    public  SimpleCallback<User> succesConfig= new SimpleCallback<User>() {
+        @Override
+        public void callback(User data) {
+            if(data!=null){
+                sendHome();
+            }else{
+                pickContact();
+            }
+        }
+    };
 
 
     private void sendHome() {
@@ -176,29 +192,7 @@ public class signIn extends Activity {
 
     }
 
-    public void Configured() {
-        FirebaseUser userF = FirebaseAuth.getInstance().getCurrentUser();
-        DatabaseReference mDatabase = FirebaseDatabase.getInstance().getReference();
-        DatabaseReference userData = mDatabase.child("users").child(userF.getUid());
-        Log.d("signInAuth", "-----------> " + userData.toString());
-        userData.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                User user = dataSnapshot.getValue(User.class);
-                if (user != null) {
-                    sendHome();
-                }else{
-                    pickContact();
-                }
-            }
 
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-
-                Log.d("sigmInAuth", "Configured-------> " + databaseError.toString());
-            }
-        });
-    }
 
     private void hideActionBar(){
         requestWindowFeature(Window.FEATURE_NO_TITLE);
