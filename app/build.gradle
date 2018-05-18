@@ -23,6 +23,8 @@ android {
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation 'com.android.support:appcompat-v7:26.1.0'
+    implementation "com.android.support:support-compat:26.1.0"
+
 
     //Android Stuff
     implementation 'com.android.support.constraint:constraint-layout:1.1.0'
@@ -53,6 +55,17 @@ dependencies {
     //Google Maps
     implementation 'com.google.android.gms:play-services-maps:15.0.1'
     implementation 'com.google.android.gms:play-services-places:15.0.1'
+    implementation 'com.google.android.gms:play-services-location:15.0.1'
+
+    //Circle indicator Git/ongakuer
+    implementation 'me.relex:circleindicator:1.2.2@aar'
+
+    //Recycler View
+    implementation 'com.android.support:recyclerview-v7:26.1.0'
+
+    //Wearable
+    implementation  'com.android.support:wear:26.1.0'
+
 }
 
 

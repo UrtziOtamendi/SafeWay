@@ -36,6 +36,13 @@
         android:text="Add Location" />
 
 
+    <Button
+        android:id="@+id/sendHome"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Send Home" />
+
+
     <LinearLayout
         android:id="@+id/imageLayout"
         android:layout_width="match_parent"

@@ -38,6 +38,7 @@ import otamendi.urtzi.com.safeway.Domain.linkedID;
 import otamendi.urtzi.com.safeway.Domain.myLocation;
 import otamendi.urtzi.com.safeway.R;
 import otamendi.urtzi.com.safeway.Utils.DatabaseService;
+import otamendi.urtzi.com.safeway.Utils.SimpleCallback;
 import otamendi.urtzi.com.safeway.Utils.generateQR;
 import otamendi.urtzi.com.safeway.Utils.mapsService;
 
@@ -51,6 +52,7 @@ public class HomeActivity extends Activity {
     private EditText codeNameQR;
     private Button createQR, readQR, saveLocation;
     private LinearLayout imageLayout;
+    private Button sendHome;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -85,6 +87,13 @@ public class HomeActivity extends Activity {
             }
         });
 
+        sendHome.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                sendHome();
+            }
+        });
+
         readQR.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -99,6 +108,7 @@ public class HomeActivity extends Activity {
         createQR = findViewById(R.id.createQR);
         readQR = findViewById(R.id.readQR);
         saveLocation = findViewById(R.id.addLocation);
+        sendHome= findViewById(R.id.sendHome);
     }
 
     private void setQR(String linker) {
@@ -151,6 +161,11 @@ public class HomeActivity extends Activity {
 
     private void sendSaveLocation() {
         Intent intent = new Intent(HomeActivity.this, saveLocation.class);
+        startActivity(intent);
+    }
+
+    private void sendHome(){
+        Intent intent = new Intent(HomeActivity.this, safeWayHome.class);
         startActivity(intent);
     }
 
@@ -291,5 +306,7 @@ public class HomeActivity extends Activity {
             }
         }
     }
+
+
 
     }

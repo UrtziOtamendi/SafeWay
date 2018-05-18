@@ -31,4 +31,8 @@
     <string name="user_not_found">User not found</string>
     <string name="wrong_qr">Wrong QR code</string>
     <string name="error">An error occurred, sorry</string>
+    <string name="start_button">START</string>
+    <string name="error_gps">Error getting your location, enable GPS</string>
+    <string name="no_distance_gps">No Signal</string>
+    <string name="starting">Starting...</string>
 </resources>

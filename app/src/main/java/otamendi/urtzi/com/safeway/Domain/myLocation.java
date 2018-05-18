@@ -1,5 +1,7 @@
 package otamendi.urtzi.com.safeway.Domain;
 
+import com.google.android.gms.maps.model.LatLng;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -8,6 +10,7 @@ public class myLocation {
     private String address;
     private double lat;
     private double lon;
+    private int usage=0;
 
     public myLocation(){};
 
@@ -16,6 +19,15 @@ public class myLocation {
         this.address = address;
         this.lat = lat;
         this.lon = lon;
+        this.usage=0;
+    }
+
+    public myLocation(String name, String address, double lat, double lon, int usage) {
+        this.name = name;
+        this.address = address;
+        this.lat = lat;
+        this.lon = lon;
+        this.usage=usage;
     }
 
     public Map<String, Object> toMap() {
@@ -29,11 +41,16 @@ public class myLocation {
         result.put("address", address);
         result.put("latitude", lat);
         result.put("longitude", lon);
+        result.put("usage", usage);
 
 
         return result;
 
 
+    }
+
+    public LatLng toLatLng(){
+        return new LatLng(this.lat, this.lon);
     }
     public String getName() {
         return name;
@@ -49,5 +66,9 @@ public class myLocation {
 
     public double getLon() {
         return lon;
+    }
+
+    public int getUsage() {
+        return usage;
     }
 }

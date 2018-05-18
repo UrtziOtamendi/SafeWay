@@ -9,14 +9,17 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import otamendi.urtzi.com.safeway.Domain.User;
 import otamendi.urtzi.com.safeway.Domain.linkedID;
 import otamendi.urtzi.com.safeway.Domain.myLocation;
+import otamendi.urtzi.com.safeway.Domain.trackingLocation;
 import otamendi.urtzi.com.safeway.FirebasseMessaginService.FCMService;
 
 public class DatabaseService {
@@ -66,6 +69,35 @@ public class DatabaseService {
 
     }
 
+
+    // Ordenatu erabilitako aldien arabera
+    public static void getSavedLocations(@NonNull final SimpleCallback<List<myLocation>> finishedCallback, @NonNull final SimpleCallback<String> errorCallback){
+        FirebaseUser userF = FirebaseAuth.getInstance().getCurrentUser();
+        DatabaseReference mDatabase= FirebaseDatabase.getInstance().getReference();
+        final Query locationData= mDatabase.child("locations").child(userF.getUid()).orderByChild("usage");
+        locationData.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                long locations = dataSnapshot.getChildrenCount();
+                Log.d("getSaveLocations"," Locations retrieved, exactly -->"+locations);
+                List<myLocation> locationList= new ArrayList<myLocation>();
+                for (DataSnapshot postSnapshot: dataSnapshot.getChildren()) {
+                    myLocation post = postSnapshot.getValue(myLocation.class);
+                    locationList.add(post);
+                }
+                finishedCallback.callback( locationList);
+
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                errorCallback.callback(databaseError.toString());
+                Log.e("getSaveLocations", "Error-------> "+databaseError.toString() );
+            }
+        });
+
+    }
+
     public static void saveUser(User user){
         DatabaseReference mDatabase= FirebaseDatabase.getInstance().getReference();
         mDatabase.child("users").child(FirebaseAuth.getInstance().getCurrentUser().getUid()).setValue(user);
@@ -74,6 +106,7 @@ public class DatabaseService {
         DatabaseReference mDatabase= FirebaseDatabase.getInstance().getReference();
         mDatabase.child("users").child(FirebaseAuth.getInstance().getCurrentUser().getUid()).child("receptorsID").setValue(links);
     }
+
 
 
     public static void saveLocation(myLocation location){
@@ -130,5 +163,39 @@ public class DatabaseService {
                 Log.d("sigmInAuth", "Configured-------> " + databaseError.toString());
             }
         });
+    }
+
+
+
+
+
+    public static void createTracking( int battery, myLocation goal){
+        DatabaseReference mDatabase= FirebaseDatabase.getInstance().getReference();
+
+        DatabaseReference usersTracking = mDatabase.child("tracking").child(FirebaseAuth.getInstance().getCurrentUser().getUid());
+
+        //add one usage
+        mDatabase.child("locations").child(FirebaseAuth.getInstance().getCurrentUser().getUid()).child(goal.getName()).child("usage").setValue(goal.getUsage()+1);
+        Date now = new Date();
+        usersTracking.removeValue();
+        usersTracking.child("started").setValue(now);
+        usersTracking.child("destination").setValue(goal);
+        usersTracking.child("battery").setValue(battery);
+    }
+
+    public static void stopTracking( ){
+        DatabaseReference mDatabase= FirebaseDatabase.getInstance().getReference();
+        DatabaseReference usersTracking = mDatabase.child("tracking").child(FirebaseAuth.getInstance().getCurrentUser().getUid());
+        Date now = new Date();
+        usersTracking.child("ended").setValue(now);
+    }
+
+
+
+    public static void saveTrackingLocation(trackingLocation location, int battery){
+        DatabaseReference mDatabase= FirebaseDatabase.getInstance().getReference();
+        DatabaseReference usersTracking = mDatabase.child("tracking").child(FirebaseAuth.getInstance().getCurrentUser().getUid());
+        usersTracking.child("locations").push().setValue(location);
+        usersTracking.child("battery").setValue(battery);
     }
 }
