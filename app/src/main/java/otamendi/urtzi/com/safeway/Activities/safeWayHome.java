@@ -8,6 +8,7 @@ import android.content.IntentSender;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.os.BatteryManager;
+import android.os.Build;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
@@ -50,9 +51,12 @@ import otamendi.urtzi.com.safeway.Domain.trackingLocation;
 import otamendi.urtzi.com.safeway.R;
 import otamendi.urtzi.com.safeway.Utils.DatabaseService;
 import otamendi.urtzi.com.safeway.Utils.SimpleCallback;
+import otamendi.urtzi.com.safeway.Utils.Util;
+import otamendi.urtzi.com.safeway.Utils.location.locationService;
 import otamendi.urtzi.com.safeway.Utils.mapsService;
 import otamendi.urtzi.com.safeway.Utils.notificationService;
 import otamendi.urtzi.com.safeway.Utils.onRecyclerViewClickListener;
+import otamendi.urtzi.com.safeway.Utils.sharedPreferences;
 
 public class safeWayHome extends AppCompatActivity {
 
@@ -160,14 +164,15 @@ public class safeWayHome extends AppCompatActivity {
     private onRecyclerViewClickListener listenerRecyclerView = new onRecyclerViewClickListener() {
         @Override
         public void onClick(View view, int position) {
-            if(deviceTracked==false){
+            if (sharedPreferences.readBoolean(safeWayHome.this,"tracking")==false){
                 myLocation location = locationList.get(position);
                 selectedLocation=location;
-                notificationService.createTrackinNotification(safeWayHome.this,location.getName(),safeWayHome.this);
+              //  notificationService.createTrackinNotification(safeWayHome.this,location.getName(),safeWayHome.this);
                 Toast.makeText(safeWayHome.this, R.string.starting, Toast.LENGTH_SHORT);
                 requestLocationPermission();
             }
             else{
+
                 stopLocationUpdates();
                 deviceTracked=false;
             }
@@ -363,7 +368,16 @@ public class safeWayHome extends AppCompatActivity {
     private void startTracking(){
         deviceTracked=true;
         createTracking();
-        startLocationUpdates();
+        sharedPreferences.writeBoolean(this,"tracking",true);
+
+        Util.scheduleJob(this);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            startForegroundService(new Intent(this, locationService.class));
+        }else{
+            startService(new Intent(this, locationService.class));
+        }
+        //startService(new Intent(this,locationService.class));
+        //startLocationUpdates();
     }
 
     private void notStartTracking(){
@@ -376,37 +390,16 @@ public class safeWayHome extends AppCompatActivity {
     /// Get location
     /////////////////////
 
-    @SuppressLint("MissingPermission")
-    private void startLocationUpdates() {
-        Log.d(TAG,"GstartLocationUpdates.");
-        mFusedLocationClient.requestLocationUpdates(mapsService.getLocationRequest(),
-                locationUpdatesCallback,
-                null /* Looper */);
-    }
 
-    private LocationCallback locationUpdatesCallback= new LocationCallback(){
-        @Override
-        public void onLocationResult(LocationResult locationResult) {
-            if (locationResult == null) {
 
-                Log.d(TAG,"-------------> Null");
-                return;
-            }
-            for (Location location : locationResult.getLocations()) {
-
-                Log.d(TAG,"------------->" + location.toString());
-                trackingLocation tLocation = new trackingLocation(new Date(), location.getLatitude(), location.getLongitude());
-                DatabaseService.saveTrackingLocation(tLocation, getBatteryLevel());
-                Toast.makeText(safeWayHome.this,"lat: "+location.getLatitude()+" long: "+location.getLongitude(), Toast.LENGTH_SHORT).show();
-            }
-        }
-    };
 
     private void stopLocationUpdates() {
-
-        Log.d(TAG,"stopLocationUpdates.");
-        DatabaseService.stopTracking();
-        mFusedLocationClient.removeLocationUpdates(new LocationCallback());
+        sharedPreferences.writeBoolean(this,"tracking",false);
+        stopService(new Intent(this,locationService.class));
+        //Util.stopScheduleJob(this);
+        //Log.d(TAG,"stopLocationUpdates.");
+        //DatabaseService.stopTracking();
+        //mFusedLocationClient.removeLocationUpdates(new LocationCallback());
     }
 
 
@@ -418,12 +411,11 @@ public class safeWayHome extends AppCompatActivity {
         DatabaseService.createTracking(getBatteryLevel(),selectedLocation);
     }
 
-
-
     private int getBatteryLevel(){
         BatteryManager bm = (BatteryManager)getSystemService(BATTERY_SERVICE);
         return   bm.getIntProperty(BatteryManager.BATTERY_PROPERTY_CAPACITY);
     }
+
 
 
 }

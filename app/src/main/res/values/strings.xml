@@ -35,4 +35,5 @@
     <string name="error_gps">Error getting your location, enable GPS</string>
     <string name="no_distance_gps">No Signal</string>
     <string name="starting">Starting...</string>
+    <string name="shared_preference_file_key">safe_way_preferences</string>
 </resources>

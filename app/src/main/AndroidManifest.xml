@@ -8,11 +8,13 @@
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
 
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
+        android:name=".Utils.MainApplication"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/MainTheme">
@@ -60,6 +62,9 @@
             </intent-filter>
         </service>
 
+
+
+
         <meta-data
             android:name="com.google.android.geo.API_KEY"
             android:value="AIzaSyCA0yo3yTuhXwCMwEruo0g6WJofdP39Unc" />
@@ -82,7 +87,23 @@
         <activity
             android:name=".Activities.saveLocation"
             android:label="@string/title_activity_save_location" />
-        <activity android:name=".Activities.safeWayHome"></activity>
+        <activity android:name=".Activities.safeWayHome" />
+
+        <service
+            android:name=".Utils.location.locationService"
+            android:exported="true"
+            android:permission="android.permission.BIND_JOB_SERVICE"
+            ></service>
+
+
+
+        <receiver android:name=".Utils.location.locationServiceReceiver" >
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+            </intent-filter>
+        </receiver>
+
+
     </application>
 
 </manifest>
