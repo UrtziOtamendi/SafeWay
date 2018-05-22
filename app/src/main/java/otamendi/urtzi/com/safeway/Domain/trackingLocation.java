@@ -1,5 +1,7 @@
 package otamendi.urtzi.com.safeway.Domain;
 
+import com.google.android.gms.maps.model.LatLng;
+
 import java.util.Date;
 
 public class trackingLocation {
@@ -18,6 +20,9 @@ public class trackingLocation {
         this.lon = lon;
     }
 
+    public LatLng toLatLng(){
+        return new LatLng(lat,lon);
+    }
     public Date getDate() {
         return date;
     }

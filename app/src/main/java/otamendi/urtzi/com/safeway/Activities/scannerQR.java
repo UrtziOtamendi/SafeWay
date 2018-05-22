@@ -5,23 +5,13 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.widget.Toast;
 
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
 import com.google.zxing.Result;
 
 import me.dm7.barcodescanner.zxing.ZXingScannerView;
-import otamendi.urtzi.com.safeway.Domain.User;
 import otamendi.urtzi.com.safeway.Domain.linkedID;
 import otamendi.urtzi.com.safeway.R;
-import otamendi.urtzi.com.safeway.Utils.AuthService;
 import otamendi.urtzi.com.safeway.Utils.DatabaseService;
 import otamendi.urtzi.com.safeway.Utils.SimpleCallback;
-import otamendi.urtzi.com.safeway.Utils.linkUsers;
 
 public class scannerQR  extends AppCompatActivity implements ZXingScannerView.ResultHandler {
 
@@ -117,7 +107,7 @@ public class scannerQR  extends AppCompatActivity implements ZXingScannerView.Re
         }
 
         DatabaseService.saveLinks(newLink);
-        linkUsers.linkReceptor(senderUID,senderName);
+        DatabaseService.linkReceptor(senderUID,senderName);
         finish();
 
     }

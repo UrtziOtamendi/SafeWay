@@ -9,7 +9,7 @@
         android:id="@+id/linkedUsersButton"
         app:showAsAction="always"
         android:icon="@drawable/ic_group_24px"
-        app:itemBackground="@color/transparent"
+        app:itemBackground="@color/colorPrimary"
         />
 
 

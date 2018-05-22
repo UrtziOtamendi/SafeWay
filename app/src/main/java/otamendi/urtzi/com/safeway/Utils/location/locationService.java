@@ -1,24 +1,15 @@
 package otamendi.urtzi.com.safeway.Utils.location;
 
 import android.annotation.SuppressLint;
-import android.app.IntentService;
 
 import android.app.Notification;
 import android.app.PendingIntent;
 import android.app.Service;
-import android.app.job.JobParameters;
-import android.app.job.JobService;
-import android.content.Context;
 import android.content.Intent;
 import android.location.Location;
-import android.location.LocationListener;
-import android.location.LocationManager;
-import android.os.AsyncTask;
 import android.os.BatteryManager;
 import android.os.Build;
-import android.os.Bundle;
 import android.os.IBinder;
-import android.os.Looper;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
@@ -27,7 +18,6 @@ import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
 
-import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
@@ -37,9 +27,8 @@ import otamendi.urtzi.com.safeway.Domain.trackingLocation;
 import otamendi.urtzi.com.safeway.R;
 import otamendi.urtzi.com.safeway.Utils.DatabaseService;
 import otamendi.urtzi.com.safeway.Utils.MainApplication;
-import otamendi.urtzi.com.safeway.Utils.Util;
 import otamendi.urtzi.com.safeway.Utils.mapsService;
-import otamendi.urtzi.com.safeway.Utils.notificationService;
+import otamendi.urtzi.com.safeway.Utils.sharedPreferences;
 
 public class locationService extends Service {
 
@@ -81,6 +70,8 @@ public class locationService extends Service {
         try {
             stopForeground(true);
             stopLocationUpdates();
+            Log.d(TAG,"Stoping service");
+
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -108,10 +99,11 @@ public class locationService extends Service {
     }
 
     private  void stopLocationUpdates() {
-
+        mFusedLocationClient.removeLocationUpdates(locationUpdatesCallback);
         Log.d(TAG,"stopLocationUpdates.");
         DatabaseService.stopTracking();
-        mFusedLocationClient.removeLocationUpdates(new LocationCallback());
+
+
     }
 
     private  LocationCallback locationUpdatesCallback= new LocationCallback(){
@@ -128,6 +120,28 @@ public class locationService extends Service {
                 Log.d(TAG,"------------->" + location.toString());
                 trackingLocation tLocation = new trackingLocation(date, location.getLatitude(), location.getLongitude());
                 DatabaseService.saveTrackingLocation(tLocation, getBatteryLevel());
+            }
+        }
+    };
+
+    private  LocationCallback locationLastUpdatesCallback= new LocationCallback(){
+        @Override
+        public void onLocationResult(LocationResult locationResult) {
+            Log.d(TAG,"LAST");
+            if (locationResult == null) {
+
+                Log.d(TAG,"LAST--------> Null");
+                return;
+            }
+            for (Location location : locationResult.getLocations()) {
+
+                Date date = new Date(location.getTime());
+                Log.d(TAG,"LAST------>" + location.toString());
+                trackingLocation tLocation = new trackingLocation(date, location.getLatitude(), location.getLongitude());
+                DatabaseService.saveTrackingLocation(tLocation, getBatteryLevel());
+            }
+            if(sharedPreferences.readBoolean(MainApplication.getAppContext(),"tracking")==false){
+                stopLocationUpdates();
             }
         }
     };

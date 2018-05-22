@@ -30,9 +30,7 @@ import com.google.android.gms.common.api.PendingResult;
 import com.google.android.gms.common.api.ResultCallback;
 import com.google.android.gms.common.api.Status;
 import com.google.android.gms.location.FusedLocationProviderClient;
-import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
-import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.location.LocationSettingsRequest;
 import com.google.android.gms.location.LocationSettingsResult;
@@ -42,19 +40,15 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 
-import java.util.Date;
 import java.util.List;
 
 import otamendi.urtzi.com.safeway.Adapter.savedLocationAdapter;
 import otamendi.urtzi.com.safeway.Domain.myLocation;
-import otamendi.urtzi.com.safeway.Domain.trackingLocation;
 import otamendi.urtzi.com.safeway.R;
 import otamendi.urtzi.com.safeway.Utils.DatabaseService;
 import otamendi.urtzi.com.safeway.Utils.SimpleCallback;
-import otamendi.urtzi.com.safeway.Utils.Util;
 import otamendi.urtzi.com.safeway.Utils.location.locationService;
 import otamendi.urtzi.com.safeway.Utils.mapsService;
-import otamendi.urtzi.com.safeway.Utils.notificationService;
 import otamendi.urtzi.com.safeway.Utils.onRecyclerViewClickListener;
 import otamendi.urtzi.com.safeway.Utils.sharedPreferences;
 
@@ -111,7 +105,7 @@ public class safeWayHome extends AppCompatActivity {
     };
 
     private void configRecyclerView() {
-        savedLocationAdapter locationAdapter = new savedLocationAdapter(locationList, position, R.layout.view_saved_location, this, safeWayHome.this, listenerRecyclerView);
+        savedLocationAdapter locationAdapter = new savedLocationAdapter(locationList, position, R.layout.view_saved_location, safeWayHome.this, listenerRecyclerView);
         locationsPager.setAdapter(locationAdapter);
         locationsPager.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
         PagerSnapHelper snapHelper = new PagerSnapHelper();
@@ -128,6 +122,8 @@ public class safeWayHome extends AppCompatActivity {
             @Override
             public void onClick(View view) {
 
+                printInfo();
+
                 // Do something
                 Toast.makeText(getApplicationContext(), "Setting", Toast.LENGTH_SHORT).show();
             }
@@ -139,8 +135,8 @@ public class safeWayHome extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.linkedUsersButton:
-                Toast.makeText(getApplicationContext(), "LinkedUsers", Toast.LENGTH_SHORT).show();
-                return true;
+               Intent intent = new Intent(safeWayHome.this, linkedUsersList.class);
+               startActivity(intent);
 
             default:
                 return super.onOptionsItemSelected(item);
@@ -153,7 +149,6 @@ public class safeWayHome extends AppCompatActivity {
         // Inflate the menu; this adds items to the action bar if it is present.
         Log.d(TAG, "+++++++ On Create Options Menu");
         getMenuInflater().inflate(R.menu.home_toolbar, menu);
-
         return true;
     }
 
@@ -168,10 +163,11 @@ public class safeWayHome extends AppCompatActivity {
                 myLocation location = locationList.get(position);
                 selectedLocation=location;
               //  notificationService.createTrackinNotification(safeWayHome.this,location.getName(),safeWayHome.this);
-                Toast.makeText(safeWayHome.this, R.string.starting, Toast.LENGTH_SHORT);
+                Toast.makeText(safeWayHome.this, R.string.starting, Toast.LENGTH_SHORT).show();
                 requestLocationPermission();
             }
             else{
+                Toast.makeText(safeWayHome.this, R.string.stoping, Toast.LENGTH_SHORT).show();
 
                 stopLocationUpdates();
                 deviceTracked=false;
@@ -369,8 +365,6 @@ public class safeWayHome extends AppCompatActivity {
         deviceTracked=true;
         createTracking();
         sharedPreferences.writeBoolean(this,"tracking",true);
-
-        Util.scheduleJob(this);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             startForegroundService(new Intent(this, locationService.class));
         }else{
@@ -396,10 +390,7 @@ public class safeWayHome extends AppCompatActivity {
     private void stopLocationUpdates() {
         sharedPreferences.writeBoolean(this,"tracking",false);
         stopService(new Intent(this,locationService.class));
-        //Util.stopScheduleJob(this);
-        //Log.d(TAG,"stopLocationUpdates.");
-        //DatabaseService.stopTracking();
-        //mFusedLocationClient.removeLocationUpdates(new LocationCallback());
+
     }
 
 
@@ -417,6 +408,13 @@ public class safeWayHome extends AppCompatActivity {
     }
 
 
+    private void printInfo(){
+
+        String text= "tracking  :" + sharedPreferences.readBoolean(this,"tracking") + " \n "
+                    + " ";
+        Toast.makeText(this, text, Toast.LENGTH_LONG).show();
+
+    }
 
 }
 

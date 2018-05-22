@@ -23,7 +23,7 @@ import otamendi.urtzi.com.safeway.Utils.onRecyclerViewClickListener;
 public class savedLocationAdapter extends RecyclerView.Adapter<savedLocationAdapter.ViewHolder>  {
 
     private final static String TAG="savedLocationAdapter";
-    private Context context,parenContext;
+    private Context context;
     private List<myLocation> locationList;
     private onRecyclerViewClickListener listener;
 
@@ -31,12 +31,11 @@ public class savedLocationAdapter extends RecyclerView.Adapter<savedLocationAdap
     private LatLng position;
     private Activity activity;
 
-    public savedLocationAdapter(List<myLocation> locations, LatLng pos, int layout, Activity activity, Context context,  onRecyclerViewClickListener listener ){
+    public savedLocationAdapter(List<myLocation> locations, LatLng pos, int layout, Activity activity, onRecyclerViewClickListener listener ){
 
         locationList=locations;
         this.layout=layout;
         this.activity=activity;
-        this.parenContext=context;
         position=pos;
         this.listener=listener;
     }
