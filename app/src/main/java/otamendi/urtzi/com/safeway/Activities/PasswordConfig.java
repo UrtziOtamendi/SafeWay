@@ -3,6 +3,9 @@ package otamendi.urtzi.com.safeway.Activities;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -14,9 +17,9 @@ import otamendi.urtzi.com.safeway.R;
 import otamendi.urtzi.com.safeway.Utils.AuthService;
 import otamendi.urtzi.com.safeway.Utils.DatabaseService;
 
-public class PasswordConfig extends Activity {
+public class PasswordConfig extends AppCompatActivity {
 
-
+    private Toolbar toolbar;
     private Button passwordButton;
     private EditText passwordText;
     private String emergencyPhone;
@@ -24,9 +27,9 @@ public class PasswordConfig extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_password_config);
-        //getActionBar().setDisplayHomeAsUpEnabled(true);
-
         bindUI();
+        setSupportActionBar(toolbar);
+        configToolbar();
         passwordButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -38,19 +41,20 @@ public class PasswordConfig extends Activity {
         });
     }
 
-
+    private void configToolbar() {
+        toolbar.setTitle(R.string.title_password_config);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(false);
+    }
 
     private void bindUI(){
         passwordButton = findViewById(R.id.setPassword);
         passwordText = findViewById(R.id.passText);
+        toolbar= findViewById(R.id.passwordConfig_toolbar);
         Bundle extras = getIntent().getExtras();
        emergencyPhone = extras.getString("emergencyPhone");
-
     }
 
     private void setPassword(String pass){
-       // Encrypt encryptModule = new Encrypt();
-       // String encryptedPass= new String(encryptModule.encrypt(pass, FirebaseAuth.getInstance().getUid()));
         User user = new User(emergencyPhone, pass, FCMIdService.getToken());
         DatabaseService.saveUser(user);
         sendHome();
@@ -58,15 +62,12 @@ public class PasswordConfig extends Activity {
     }
 
     private void sendHome(){
-        Intent intent = new Intent(PasswordConfig.this, HomeActivity.class);
+        Intent intent = new Intent(PasswordConfig.this, safeWayHome.class);
         startActivity(intent);
         finish();
     }
 
-    private void hideActionBar(){
-        getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_FULLSCREEN);
-         getActionBar().hide();
-    }
+
 
     @Override
     public boolean onNavigateUp(){

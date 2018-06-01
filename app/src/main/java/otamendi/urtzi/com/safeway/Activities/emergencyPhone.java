@@ -25,6 +25,9 @@ public class emergencyPhone  extends Activity {
     private void pickContact(){
         Intent contactPickerIntent = new Intent(Intent.ACTION_PICK,
                 ContactsContract.CommonDataKinds.Phone.CONTENT_URI);
+        //contactPickerIntent.setFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
+        //contactPickerIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+       // contactPickerIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         startActivityForResult(contactPickerIntent, RESULT_PICK_CONTACT);
 
     }
@@ -66,7 +69,11 @@ public class emergencyPhone  extends Activity {
 
         Intent intent = new Intent ( emergencyPhone.this ,PasswordConfig.class );
         intent.putExtra("emergencyPhone", phone);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         startActivity(intent);
+        finish();
     }
 
 }

@@ -66,8 +66,8 @@ public class linkedUsersList extends AppCompatActivity {
 
     private void configToolbar() {
         Log.d(TAG, "+++++++ Configuring toolbar");
-
-        getSupportActionBar().setDisplayShowTitleEnabled(false);
+        getSupportActionBar().setDisplayShowTitleEnabled(true);
+        getSupportActionBar().setTitle(R.string.title_activity_linked_Users_list);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         toolbar.setNavigationIcon(R.drawable.ic_arrow_back_24px);
         toolbar.setNavigationOnClickListener(new View.OnClickListener() {
@@ -116,7 +116,7 @@ public class linkedUsersList extends AppCompatActivity {
                 .show();
     }
 
-    private void createQR(String name){
+    private void createQR(String name) {
         Bitmap qr = generateQR.generateFromString(name);
         ImageView imageQR = new ImageView(this);
         imageQR.setImageBitmap(qr);
@@ -136,11 +136,10 @@ public class linkedUsersList extends AppCompatActivity {
     }
 
 
-
     /// Get linked users
 
-    private void getLinkedUser(){
-        DatabaseService.getLinkedUsers(getLinkedUsersCallback,displayErrorPage);
+    private void getLinkedUser() {
+        DatabaseService.getLinkedUsers(getLinkedUsersCallback, displayErrorPage);
     }
 
     private SimpleCallback<List<String[]>> getLinkedUsersCallback = new SimpleCallback<List<String[]>>() {
@@ -164,7 +163,7 @@ public class linkedUsersList extends AppCompatActivity {
     ////Config recycler view
     /////////////////////////////////
     private void configRecyclerView() {
-        linkedUsersAdapter linkedUsersAdapter = new linkedUsersAdapter(linkedUsersList,listenerRecyclerView, this);
+        linkedUsersAdapter linkedUsersAdapter = new linkedUsersAdapter(linkedUsersList, listenerRecyclerView, this);
         usersView.setAdapter(linkedUsersAdapter);
         usersView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
         usersView.addItemDecoration(
@@ -176,13 +175,29 @@ public class linkedUsersList extends AppCompatActivity {
     /////////////  onRecyclerViewClickListener /////////
     ////////////////////////////////////////////////////////////
 
+    private int selectedPosition;
     private onRecyclerViewClickListener listenerRecyclerView = new onRecyclerViewClickListener() {
         @Override
         public void onClick(View view, int position) {
+            selectedPosition = position;
+            DatabaseService.isTracking((linkedUsersList.get(position))[0], isTrackingCallback);
 
-                Intent intent = new Intent(linkedUsersList.this,usersTrackingList.class);
-                intent.putExtra("users_uid",(linkedUsersList.get(position))[0]);
+        }
+
+    };
+
+    private SimpleCallback<Boolean> isTrackingCallback = new SimpleCallback<Boolean>() {
+        @Override
+        public void callback(Boolean data) {
+            if (data) {
+                Intent intent = new Intent(linkedUsersList.this, trackingLiveWay.class);
+                intent.putExtra("users_uid", (linkedUsersList.get(selectedPosition))[0]);
                 startActivity(intent);
+            } else {
+                Intent intent = new Intent(linkedUsersList.this, usersTrackingList.class);
+                intent.putExtra("users_uid", (linkedUsersList.get(selectedPosition))[0]);
+                startActivity(intent);
+            }
         }
     };
 

@@ -10,6 +10,12 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import com.google.zxing.integration.android.IntentIntegrator;
+import com.google.zxing.integration.android.IntentResult;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import otamendi.urtzi.com.safeway.R;
 
 public class linkUsers extends Activity {
@@ -17,12 +23,13 @@ public class linkUsers extends Activity {
     private Button skipButton;
     private EditText linkedUserName;
     private FloatingActionButton scann;
-
+    private IntentIntegrator qrScan;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_auth__link);
         bindUI();
+        qrScan= new IntentIntegrator(this);
         skipButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -35,7 +42,8 @@ public class linkUsers extends Activity {
                 String name= linkedUserName.getText().toString();
                 Log.d("AUTH_LINK", "name--->"+ name);
                 if(name!= null && !name.equals("")){
-                    readQR(name);
+                   // readQR(name);
+                    qrScan.initiateScan();
                 }else{
                     Toast.makeText(linkUsers.this,"Incorrect Name", Toast.LENGTH_LONG).show();
 
@@ -66,7 +74,38 @@ public class linkUsers extends Activity {
         startActivity(intent);
     }
 
+    //Getting the scan results
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        IntentResult result = IntentIntegrator.parseActivityResult(requestCode, resultCode, data);
+        if (result != null) {
+            //if qrcode has nothing in it
+            if (result.getContents() == null) {
+                Toast.makeText(this, "Result Not Found", Toast.LENGTH_LONG).show();
+            } else {
+                //if qr contains data
+                try {
+                    //converting the data to json
+                    Log.e("ok"," " + RESULT_OK);
+                    Log.e("QRSCAAAAAN","res" +resultCode);
+                    Log.e("QRSCAAAAAN","req " +requestCode);
+                    Log.e("QRSCAAAAAN",result.toString());
 
+                    //setting values to textviews
+
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    //if control comes here
+                    //that means the encoded format not matches
+                    //in this case you can display whatever data is available on the qrcode
+                    //to a toast
+                    Toast.makeText(this, result.getContents(), Toast.LENGTH_LONG).show();
+                }
+            }
+        } else {
+            super.onActivityResult(requestCode, resultCode, data);
+        }
+    }
 
 
 

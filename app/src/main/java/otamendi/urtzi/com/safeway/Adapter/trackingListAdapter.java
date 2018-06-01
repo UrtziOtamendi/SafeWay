@@ -70,7 +70,7 @@ public class trackingListAdapter  extends RecyclerView.Adapter<trackingListAdapt
 
         public void bind(final trackingSesion tracking ) {
             address.setText(tracking.getDestination().getAddress());
-            DateFormat df = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss");
+            DateFormat df = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
             endDate.setText( df.format(tracking.getEnded()));
             startDate.setText( df.format(tracking.getStarted()));
 

@@ -29,6 +29,21 @@ public class User {
         link= new linkedID();
     }
 
+    public User(String emNum, String pass, String token, linkedID links){
+        emergencyNumber=emNum;
+        password=pass;
+        notificationToken=token;
+        link= links;
+    }
+
+    public User(String emNum, String pass, String token, linkedID links, Map<String, String> linkedWithID){
+        emergencyNumber=emNum;
+        password=pass;
+        notificationToken=token;
+        link= links;
+        this.linkedWithID= linkedWithID;
+    }
+
     public void updateLink(linkedID newLink){
         link=newLink;
     }
@@ -101,4 +116,7 @@ public class User {
     public void setNotificationToken(String notificationToken) {
         this.notificationToken = notificationToken;
     }
+
+
+
 }

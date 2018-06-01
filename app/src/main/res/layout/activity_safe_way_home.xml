@@ -9,11 +9,86 @@
 
     <android.support.v7.widget.Toolbar
         android:id="@+id/home_toolbar"
+        android:background="@color/transparent"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/transparent"
-        android:elevation="4dp" />
+        android:elevation="6dp" />
 
+    <android.support.constraint.ConstraintLayout
+        android:id="@+id/empty_locationsPager"
+        android:layout_width="300dp"
+        android:layout_height="300dp"
+        android:layout_marginBottom="8dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:background="@drawable/rounded_page_view"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintCircleAngle="360"
+        app:layout_constraintCircleRadius="150dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        android:visibility="invisible">
+
+
+        <View
+            android:id="@+id/empty_view1"
+            android:layout_width="200dp"
+            android:layout_height="1dp"
+            android:layout_marginBottom="8dp"
+            android:layout_marginEnd="8dp"
+            android:layout_marginStart="8dp"
+            android:background="#808e95"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="0.32" />
+
+
+        <TextView
+            android:id="@+id/empty_add_location"
+            style="@style/TextAppearance.AppCompat.Title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@color/transparent"
+            android:textColor="#b0bec5"
+            android:text="@string/save_new_location"
+            android:layout_marginEnd="8dp"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="8dp"
+            android:gravity="center"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.502"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/empty_view1"
+            android:textAlignment="center"/>
+
+        <View
+            android:id="@+id/empty_view2"
+            android:layout_height="1dp"
+            android:layout_width="200dp"
+            android:background="#808e95"
+            android:layout_marginEnd="8dp"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="8dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/empty_add_location" />
+
+        <ImageView
+            android:id="@+id/imageView2"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            app:srcCompat="@drawable/ic_grey_add_location_24px"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/empty_view2"
+            app:layout_constraintBottom_toBottomOf="parent"/>
+
+
+    </android.support.constraint.ConstraintLayout>
 
     <android.support.v7.widget.RecyclerView
         android:id="@+id/locationsPager"
@@ -65,6 +140,84 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/edit_fab"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:elevation="4dp"
+        android:layout_marginBottom="8dp"
+        android:layout_marginStart="8dp"
+        android:clickable="true"
+        app:layout_constraintBottom_toBottomOf="@+id/locationsPager"
+        app:layout_constraintStart_toStartOf="@+id/locationsPager"
+        app:srcCompat="@drawable/ic_baseline_edit_24px" />
 
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/delete_fab"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_marginBottom="8dp"
+        android:layout_marginEnd="8dp"
+        android:elevation="4dp"
+        android:clickable="true"
+        app:layout_constraintBottom_toBottomOf="@+id/locationsPager"
+        app:layout_constraintEnd_toEndOf="@+id/locationsPager"
+        app:srcCompat="@drawable/ic_baseline_delete_24px" />
+
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/save_fab"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginBottom="32dp"
+        android:clickable="true"
+        android:elevation="4dp"
+        app:layout_constraintBottom_toTopOf="@+id/select_location"
+        app:layout_constraintEnd_toEndOf="@+id/locationsPager"
+        app:layout_constraintStart_toStartOf="@+id/locationsPager"
+        app:srcCompat="@drawable/ic_outline_add_location_24px" />
+
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/stop_fab"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginBottom="32dp"
+        android:clickable="true"
+        android:elevation="6dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="@+id/locationsPager"
+        app:layout_constraintStart_toStartOf="@+id/locationsPager"
+        app:srcCompat="@drawable/ic_baseline_clear_24px" />
+
+    <Button
+        android:id="@+id/select_location"
+        style="@android:style/Widget.Material.Button.Colored"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:elevation="4dp"
+        android:text="@string/find_on_maps"
+        android:drawableRight="@drawable/ic_baseline_map_24px"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/circleView" />
+
+
+
+    <FrameLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@+id/home_toolbar"
+        android:id="@+id/mapContainer"
+        android:elevation="5dp">
+
+    </FrameLayout>
 
 </android.support.constraint.ConstraintLayout>

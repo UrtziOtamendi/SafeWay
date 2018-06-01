@@ -3,6 +3,8 @@ package otamendi.urtzi.com.safeway.Utils;
 import android.content.Context;
 import android.content.SharedPreferences;
 
+import com.google.android.gms.maps.model.LatLng;
+
 import otamendi.urtzi.com.safeway.R;
 
 public class sharedPreferences {
@@ -29,6 +31,14 @@ public class sharedPreferences {
         SharedPreferences sharedPreferences= getSharedPreferences(context);
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putBoolean(key, value);
+
+        editor.commit();
+    }
+
+    public static void writeFloat(Context context,String key, float value){
+        SharedPreferences sharedPreferences= getSharedPreferences(context);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putFloat(key, value);
         editor.commit();
     }
 
@@ -47,4 +57,10 @@ public class sharedPreferences {
         Boolean pref= false;
         return sharedPreferences.getBoolean(key,pref);
     }
+
+    public static float readFloat(Context context, String key){
+        SharedPreferences sharedPreferences= getSharedPreferences(context);
+        return sharedPreferences.getInt(key, -1);
+    }
+
 }

@@ -50,29 +50,47 @@ public class savedLocationAdapter extends RecyclerView.Adapter<savedLocationAdap
 
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
-        holder.bind(locationList.get(position));
+        if(position>0){
+            position = position % locationList.size();
+            holder.bind(locationList.get(position));
+        }
 
     }
 
     @Override
     public int getItemCount() {
-        return locationList.size();
+        return Integer.MAX_VALUE;
     }
 
+
+    public void deleteItem(int index) {
+        locationList.remove(index);
+        notifyItemRemoved(index);
+    }
+
+    public void updateItem(int index,String name) {
+        locationList.get(index).setName(name);
+        notifyItemChanged(index);
+    }
+
+    public void addItem(myLocation location) {
+        locationList.add(location);
+        notifyItemInserted(locationList.size()-1);
+    }
 
 
 
     public class ViewHolder extends RecyclerView.ViewHolder  implements View.OnClickListener{
 
-        public TextView address,name,kmToGo, startStop;
+        public TextView address,name,kmToGo;
         private onRecyclerViewClickListener listener;
+
 
         public ViewHolder(View itemView, onRecyclerViewClickListener listener) {
             super(itemView);
             address = (TextView) itemView.findViewById(R.id.savedAddressName);
             name = (TextView) itemView.findViewById(R.id.savedLocationName);
             kmToGo = (TextView) itemView.findViewById(R.id.kmToGoal);
-            startStop = (TextView) itemView.findViewById(R.id.homeStartStop);
             this.listener= listener;
             itemView.setOnClickListener(this);
 
@@ -88,13 +106,15 @@ public class savedLocationAdapter extends RecyclerView.Adapter<savedLocationAdap
             }
             address.setText(location.getAddress());
             name.setText(location.getName());
-            startStop.setText(R.string.start_button);
+
         }
 
         @Override
         public void onClick(View view) {
             listener.onClick(view, getAdapterPosition());
         }
+
+
     }
 
 }

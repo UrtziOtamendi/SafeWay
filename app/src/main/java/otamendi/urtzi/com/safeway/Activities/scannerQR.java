@@ -1,5 +1,6 @@
 package otamendi.urtzi.com.safeway.Activities;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -87,7 +88,7 @@ public class scannerQR  extends AppCompatActivity implements ZXingScannerView.Re
         @Override
         public void callback(String data) {
             Toast.makeText(scannerQR.this,data, Toast.LENGTH_LONG).show();
-            finish();
+            returnSettings();
         }
     };
 
@@ -108,7 +109,13 @@ public class scannerQR  extends AppCompatActivity implements ZXingScannerView.Re
 
         DatabaseService.saveLinks(newLink);
         DatabaseService.linkReceptor(senderUID,senderName);
-        finish();
+        returnSettings();
+
+    }
+
+    private void returnSettings(){
+        Intent intent = new Intent(scannerQR.this, settingsActivity.class);
+        startActivity(intent);
 
     }
 

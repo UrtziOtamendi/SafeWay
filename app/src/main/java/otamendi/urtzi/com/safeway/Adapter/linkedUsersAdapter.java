@@ -59,6 +59,7 @@ public class linkedUsersAdapter  extends RecyclerView.Adapter<linkedUsersAdapter
         public TextView name;
         public ImageView image;
         private onRecyclerViewClickListener listener;
+        public Boolean tracking=false;
 
         public ViewHolder(View itemView, onRecyclerViewClickListener listener) {
             super(itemView);
@@ -80,6 +81,7 @@ public class linkedUsersAdapter  extends RecyclerView.Adapter<linkedUsersAdapter
             @Override
             public void callback(Boolean data) {
                 if(data){
+                    tracking=true;
                     image.setImageResource(R.drawable.ic_gps_fixed_24px);
                 }
             }

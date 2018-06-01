@@ -1,7 +1,10 @@
 package otamendi.urtzi.com.safeway.Activities;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.graphics.Color;
+import android.net.Uri;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
@@ -34,13 +37,16 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
+import otamendi.urtzi.com.safeway.Domain.User;
 import otamendi.urtzi.com.safeway.Domain.myLocation;
 import otamendi.urtzi.com.safeway.Domain.trackingLocation;
 import otamendi.urtzi.com.safeway.Domain.trackingSesion;
+import otamendi.urtzi.com.safeway.FirebasseMessaginService.FCMService;
 import otamendi.urtzi.com.safeway.R;
 import otamendi.urtzi.com.safeway.Utils.ComplexCallback;
 import otamendi.urtzi.com.safeway.Utils.DatabaseService;
 import otamendi.urtzi.com.safeway.Utils.SimpleCallback;
+import otamendi.urtzi.com.safeway.Utils.mapsService;
 
 public class trackingLiveWay extends AppCompatActivity implements OnMapReadyCallback {
 
@@ -52,6 +58,7 @@ public class trackingLiveWay extends AppCompatActivity implements OnMapReadyCall
     private TextView startText, destinationText, batteryText, lastText;
     private DateFormat df = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss");
     private Date start;
+    private FloatingActionButton emergencyCallFab,emergencyAlarmFab;
     private myLocation destination;
     private List<trackingLocation> locationList = new ArrayList<trackingLocation>();
     private List<LatLng> locationListLatLng = new ArrayList<LatLng>();
@@ -86,6 +93,22 @@ public class trackingLiveWay extends AppCompatActivity implements OnMapReadyCall
                     timeProgress.setVisibility(View.VISIBLE);
                     configSeekBar();
                 }
+            }
+        });
+        emergencyCallFab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                FCMService.sendMessage(users_uid, "emergencyCall");
+                emergencyCallFab.setVisibility(View.INVISIBLE);
+
+            }
+        });
+        emergencyAlarmFab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                FCMService.sendMessage(users_uid, "alarmOn");
+                emergencyAlarmFab.setVisibility(View.INVISIBLE);
             }
         });
 
@@ -125,6 +148,8 @@ public class trackingLiveWay extends AppCompatActivity implements OnMapReadyCall
         lastText = findViewById(R.id.lastText);
         timeProgress= findViewById(R.id.seekBarTime);
         autoProgress=findViewById(R.id.autoSwitch);
+        emergencyCallFab= findViewById(R.id.emergency_call_fab);
+        emergencyAlarmFab = findViewById(R.id.emergency_alarm_fab);
 
     }
 
@@ -198,6 +223,17 @@ public class trackingLiveWay extends AppCompatActivity implements OnMapReadyCall
                 setLastText(data);
                 locationList.add(data);
                 locationListLatLng.add(data.toLatLng());
+                int aux =locationListLatLng.size();
+                if(aux>=10){
+                 LatLng p1= locationListLatLng.get(aux-1);
+                 LatLng p2= locationListLatLng.get(aux-10);
+                 double distance=   mapsService.distanceToGoalMeters(p1,p2);
+                 if(distance<20){
+                     show_fab();
+                 }else{
+                     hide_fab();
+                 }
+                }
                 if(!autoProgress.isChecked()){
                     configSeekBar();
                 }else{
@@ -291,4 +327,17 @@ public class trackingLiveWay extends AppCompatActivity implements OnMapReadyCall
 
         }
     };
+
+    // emergency call
+
+
+    private void show_fab(){
+        emergencyAlarmFab.setVisibility(View.VISIBLE);
+        emergencyCallFab.setVisibility(View.VISIBLE);
+    }
+
+    private void hide_fab(){
+        emergencyAlarmFab.setVisibility(View.INVISIBLE);
+        emergencyCallFab.setVisibility(View.INVISIBLE);
+    }
 }

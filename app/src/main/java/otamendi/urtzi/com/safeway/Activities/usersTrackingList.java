@@ -13,6 +13,7 @@ import android.view.View;
 import android.widget.Toast;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 
@@ -52,8 +53,8 @@ public class usersTrackingList extends AppCompatActivity {
 
     private void configToolbar() {
         Log.d(TAG, "+++++++ Configuring toolbar");
-
-        getSupportActionBar().setDisplayShowTitleEnabled(false);
+        getSupportActionBar().setDisplayShowTitleEnabled(true);
+        getSupportActionBar().setTitle(R.string.title_activity_user_tracking_list);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         toolbar.setNavigationIcon(R.drawable.ic_arrow_back_24px);
         toolbar.setNavigationOnClickListener(new View.OnClickListener() {
@@ -77,8 +78,11 @@ public class usersTrackingList extends AppCompatActivity {
     private ComplexCallback<List<trackingSesion>,List<String>> getTrackingListCallback = new ComplexCallback<List<trackingSesion>,List<String>>() {
         @Override
         public void callback(List<trackingSesion> sesions,List<String> keys) {
+
             trackingList = sesions;
+            Collections.reverse(trackingList);
             keyList= keys;
+            Collections.reverse(keyList);
             configRecyclerView();
             Log.d(TAG, "Linked users ");
         }
@@ -113,6 +117,8 @@ public class usersTrackingList extends AppCompatActivity {
             Intent intent = new Intent(usersTrackingList.this, mapTrackingSesion.class);
             intent.putExtra("sesion_id",keyList.get(position));
             intent.putExtra("users_uid",users_uid);
+            intent.putExtra("lat",trackingList.get(position).getDestination().getLat());
+            intent.putExtra("lon",trackingList.get(position).getDestination().getLon());
             startActivity(intent);
         }
     };

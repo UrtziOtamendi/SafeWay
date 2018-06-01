@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".Activities.trackingLiveWay">
+
+    <android.support.v7.widget.Toolbar
+        android:id="@+id/mapLiveTracking_toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/colorPrimary"
+        android:elevation="4dp" />
+
+    <fragment
+        android:id="@+id/mapLiveTracking"
+        android:name="com.google.android.gms.maps.SupportMapFragment"
+        android:layout_width="match_parent"
+        android:layout_height="400dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/mapLiveTracking_toolbar" />
+
+    <Switch
+        android:id="@+id/autoSwitch"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Auto"
+        android:checked="true"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp"
+        app:layout_constraintTop_toBottomOf="@+id/mapLiveTracking"
+        app:layout_constraintEnd_toStartOf="@+id/destinationText"
+        app:layout_constraintStart_toStartOf="parent"/>
+
+    <SeekBar
+        android:id="@+id/seekBarTime"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="4dp"
+        android:layout_marginTop="16dp"
+        android:visibility="invisible"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/autoSwitch"
+        app:layout_constraintTop_toBottomOf="@+id/mapLiveTracking" />
+
+
+
+    <ImageView
+        android:id="@+id/destinationImage"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:srcCompat="@drawable/ic_person_walk_24px"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp"
+        app:layout_constraintTop_toBottomOf="@+id/autoSwitch"
+        app:layout_constraintEnd_toStartOf="@+id/destinationText"
+        app:layout_constraintStart_toStartOf="parent"  />
+
+    <TextView
+        android:id="@+id/destinationText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp"
+        app:layout_constraintTop_toBottomOf="@+id/autoSwitch"
+        app:layout_constraintStart_toEndOf="@+id/destinationImage" />
+
+
+    <ImageView
+        android:id="@+id/lastImage"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:srcCompat="@drawable/ic_gps_fixed_24px"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp"
+        app:layout_constraintTop_toBottomOf="@+id/destinationText"
+        app:layout_constraintEnd_toStartOf="@+id/lastText"
+        app:layout_constraintStart_toStartOf="parent"  />
+
+    <TextView
+        android:id="@+id/lastText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp"
+        app:layout_constraintTop_toBottomOf="@+id/destinationText"
+        app:layout_constraintStart_toEndOf="@+id/lastImage" />
+
+    <ImageView
+        android:id="@+id/batteryImage"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:srcCompat="@drawable/ic_baseline_battery_60_24px"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp"
+        app:layout_constraintTop_toBottomOf="@+id/lastText"
+        app:layout_constraintEnd_toStartOf="@+id/batteryText"
+        app:layout_constraintStart_toStartOf="parent"  />
+
+    <TextView
+        android:id="@+id/batteryText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        style="@style/TextAppearance.AppCompat.Medium"
+
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp"
+        app:layout_constraintTop_toBottomOf="@+id/lastText"
+        app:layout_constraintStart_toEndOf="@+id/batteryImage" />
+
+    <ImageView
+        android:id="@+id/startImage"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:srcCompat="@drawable/ic_baseline_clock_24px"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp"
+        app:layout_constraintTop_toBottomOf="@+id/batteryText"
+        app:layout_constraintEnd_toStartOf="@+id/startText"
+        app:layout_constraintStart_toStartOf="parent"  />
+
+    <TextView
+        android:id="@+id/startText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        style="@style/TextAppearance.AppCompat.Medium"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp"
+        app:layout_constraintTop_toBottomOf="@+id/batteryText"
+        app:layout_constraintStart_toEndOf="@+id/startImage" />
+
+
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/emergency_call_fab"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:elevation="4dp"
+        android:visibility="invisible"
+        android:layout_marginBottom="8dp"
+        android:layout_marginStart="8dp"
+        android:clickable="true"
+        app:layout_constraintBottom_toBottomOf="@+id/mapLiveTracking"
+        app:layout_constraintStart_toStartOf="parent"
+        app:backgroundTint="#ab000d"
+        app:srcCompat="@drawable/ic_baseline_call_24px" />
+
+
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/emergency_alarm_fab"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:visibility="invisible"
+        android:elevation="4dp"
+        android:layout_marginBottom="8dp"
+        android:layout_marginEnd="8dp"
+        android:clickable="true"
+        app:layout_constraintBottom_toBottomOf="@+id/mapLiveTracking"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:backgroundTint="#ab000d"
+        app:srcCompat="@drawable/ic_baseline_warning_24px" />
+
+</android.support.constraint.ConstraintLayout>

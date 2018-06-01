@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -7,31 +7,44 @@
     tools:context="otamendi.urtzi.com.safeway.Activities.SMS_Code"
     android:orientation="vertical">
 
-
-
+        <android.support.v7.widget.Toolbar
+            android:id="@+id/smsCode_toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:elevation="4dp"
+            />
 
         <com.raycoarana.codeinputview.CodeInputView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            app:animate_on_complete="true"
             android:id="@+id/smsInput"
-            android:layout_marginTop="100dp"
+            android:layout_width="wrap_content"
+            android:layout_height="61dp"
             android:layout_gravity="center_horizontal"
+            android:layout_marginBottom="100dp"
+            android:layout_marginEnd="8dp"
+            android:layout_marginStart="8dp"
+            app:animate_on_complete="true"
             app:input_type="numeric"
-            app:length_of_code="6"
-            />
+            app:layout_constraintBottom_toTopOf="@+id/SMSverifyButton"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:length_of_code="6" />
 
         <Button
             android:id="@+id/SMSverifyButton"
             style="@android:style/Widget.Material.Button.Colored"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
             android:layout_alignParentStart="true"
             android:layout_below="@+id/phone_input"
-            android:layout_marginTop="185dp"
-            android:text="@string/button_SMS_code" />
+            android:layout_gravity="center_horizontal"
+            android:layout_marginBottom="150dp"
+            android:layout_marginEnd="8dp"
+            android:layout_marginStart="8dp"
+            android:text="@string/button_SMS_code"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent" />
 
 
 
-</LinearLayout>
+</android.support.constraint.ConstraintLayout>

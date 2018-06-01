@@ -1,6 +1,7 @@
 <resources>
     <string name="app_name" translatable="false">SafeWay</string>
 
+    <string name="default_notification_channel_id" translatable="false">com.urtzi.otamendi</string>
     <string name="title_activity_home">HomeActivity</string>
     <string name="title_home">Home</string>
     <string name="title_phoneAuth">Phone Authentication</string>
@@ -44,4 +45,40 @@
     <string name="stoping">stoping...</string>
     <string name="title_activity_map_tracking_sesion">Map</string>
     <string name="destination">Destination</string>
+    <string name="started">Started</string>
+    <string name="title_activity_linked_Users_list">Linked Users</string>
+    <string name="title_activity_user_tracking_list">Trackings</string>
+    <string name="delete_location_title">Delete Saved Location</string>
+    <string name="delete_location_mesage">Are you sure you want to delete this saved location?</string>
+    <string name="edit_location_title">Edit name</string>
+    <string name="edit_location_mesage">Set locations new name</string>
+    <string name="find_on_maps">Select from map</string>
+    <string name="stop">STOP</string>
+    <string name="stop_tracking_title">Stop Tracking</string>
+    <string name="stop_tracking_mesage">Are you sure you want to stop tracking?</string>
+    <string name="yes">Yes</string>
+    <string name="no">No</string>
+    <string name="have_arrived">User arrived to destination</string>
+    <string name="notif_tracking_started">Tracking Started</string>
+    <string name="notif_tracking_started_body">has started tracking.</string>
+    <string name="notif_tracking_stoped">Tracking Stoped</string>
+    <string name="notif_tracking_stoped_body">has stoped tracking service.</string>
+    <string name="alarm_dialog_title">Alarm Activated</string>
+    <string name="alarm_dialog_message">Insert password to stop the alarm</string>
+    <string name="password_empty">You have to insert password</string>
+    <string name="incorrect_password">Incorrect Password</string>
+    <string name="phone_title">Phone Number</string>
+    <string name="title_password_config">Set password</string>
+    <string name="title_activity_sms_code">SMS Code</string>
+    <string name="save_new_location">Save location</string>
+    <string name="change_pass">Change password</string>
+    <string name="change_emergency_numb">Change emergency number</string>
+    <string name="link_user_setting">Link new user</string>
+    <string name="settings_title">Settings</string>
+    <string name="delete_link_title">Delete Link</string>
+    <string name="delete_link_message">Do you really delete this link?</string>
+    <string name="change_pass_title">Change Password</string>
+    <string name="change_pass_message">Insert the new password</string>
+    <string name="no_camera_permission">No camera permission conceded</string>
+    <string name="already_linked">User already linked</string>
 </resources>

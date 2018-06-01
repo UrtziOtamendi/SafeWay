@@ -89,6 +89,19 @@ public class mapsService {
         return distance;
     }
 
+    public static float distanceToGoalMeters(LatLng goal, LatLng position) {
+        float[] results = new float[1];
+        Location.distanceBetween(position.latitude, position.longitude,
+                goal.latitude, goal.longitude, results);
+        float distance=-1;
+        if (results != null && results.length > 0) {
+             distance = results[0];
+            Log.d(TAG, "RESULTS------->" + distance);
+        }
+        return distance;
+    }
+
+
     public static String bindAddress(List<Address> addresses) {
         String addressString = "";
         if (addresses.size() != 0) {

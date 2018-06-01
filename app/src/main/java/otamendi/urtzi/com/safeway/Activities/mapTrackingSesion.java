@@ -1,5 +1,6 @@
 package otamendi.urtzi.com.safeway.Activities;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.graphics.Color;
 import android.support.v4.app.FragmentActivity;
@@ -8,6 +9,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
+import android.widget.SeekBar;
 import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -24,6 +26,8 @@ import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.android.gms.maps.model.RoundCap;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -43,7 +47,12 @@ public class mapTrackingSesion extends AppCompatActivity implements OnMapReadyCa
     private SupportMapFragment mapFragment;
     private String sesion_id, users_uid;
     private Toolbar toolbar;
-    private trackingSesion trackingSesion;
+    private LatLng destination;
+    private SeekBar timeProgress;
+    private List<trackingLocation> locations;
+    private Polyline trackedPath;
+    private  List<LatLng> locationList;
+    private DateFormat df = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss");
     protected static final String TAG = "MAP TRACKING SESSION ";
 
     @Override
@@ -55,6 +64,9 @@ public class mapTrackingSesion extends AppCompatActivity implements OnMapReadyCa
         Bundle extras = getIntent().getExtras();
         sesion_id = extras.getString("sesion_id");
         users_uid = extras.getString("users_uid");
+        Double lat =extras.getDouble("lat");
+        Double lon =extras.getDouble("lon");
+        destination= new LatLng(lat,lon);
         setSupportActionBar(toolbar);
         configToolbar();
         getTrackingSesion();
@@ -66,6 +78,7 @@ public class mapTrackingSesion extends AppCompatActivity implements OnMapReadyCa
                 .findFragmentById(R.id.mapTrackingSesion);
         mapFragment.getMapAsync(this);
         toolbar = (Toolbar) findViewById(R.id.mapTrackingSesion_toolbar);
+        timeProgress= (SeekBar) findViewById(R.id.timeProgress);
 
     }
 
@@ -96,11 +109,18 @@ public class mapTrackingSesion extends AppCompatActivity implements OnMapReadyCa
         DatabaseService.getTrackingSesion(users_uid, sesion_id, getTrackingSesionCallback, displayErrorPage);
     }
 
-    private SimpleCallback<trackingSesion> getTrackingSesionCallback = new SimpleCallback<trackingSesion>() {
+    private SimpleCallback<List<trackingLocation>> getTrackingSesionCallback = new SimpleCallback<List<trackingLocation>>() {
         @Override
-        public void callback(trackingSesion data) {
-            trackingSesion = data;
+        public void callback(List<trackingLocation> data) {
+            locations = data;
+            locationList = new ArrayList<LatLng>();
+            for (trackingLocation location : locations) {
+                locationList.add(location.toLatLng());
+            }
             displaySesion();
+            if(locations.size()>0){
+                configSeekBar();
+            }
 
         }
     };
@@ -126,42 +146,71 @@ public class mapTrackingSesion extends AppCompatActivity implements OnMapReadyCa
 
     private void displayGoal() {
         Log.e(TAG,"goal display");
-        myLocation destination = trackingSesion.getDestination();
-        LatLng destinationLatLng = destination.toLatLng();
         mMap.addMarker(new MarkerOptions()
-                .position(destinationLatLng)
+                .position(destination)
                 .title(getResources().getString(R.string.destination))
                 .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED)));
-        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(destinationLatLng, 15));
+        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(destination, 15));
 
 
     }
 
+    @SuppressLint("ResourceType")
     private void drawPolyline() {
         Log.e(TAG,"drawing Poliline");
         PatternItem dot = new Dot();
         PatternItem gap = new Gap(2);
         List<PatternItem> dotted = Arrays.asList(gap, dot);
 
-        List<trackingLocation> locations = trackingSesion.getLocationList();
-        List<LatLng> locationsLatLng = new ArrayList<LatLng>();
-        for (trackingLocation location : locations) {
-            locationsLatLng.add(location.toLatLng());
-        }
-        Log.e(TAG,"drawing Poliline points --->" + locationsLatLng.size());
+        Log.e(TAG,"drawing Poliline points --->" + locationList.size());
 
-        Polyline trackedPath = mMap.addPolyline(new PolylineOptions()
-                .addAll(locationsLatLng)
+         trackedPath = mMap.addPolyline(new PolylineOptions()
                 .color(Color.BLUE)
                 .width(30));
 
 
         trackedPath.setEndCap(new RoundCap());
         //trackedPath.setPattern(dotted);
+        if(locationList.size()>0){
+            mMap.addMarker(new MarkerOptions().position(locationList.get(0))
+                                              .title((getResources().getString(R.string.started)))
+                                              .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE)));
+            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom( locations.get(locations.size()-1).toLatLng(), 15));
 
-        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom( locations.get(locations.size()-1).toLatLng(), 15));
+        }
 
     }
+
+
+    //Config Seek Bar
+
+    private void configSeekBar(){
+        Log.e(TAG,"CofigSeekBar");
+        timeProgress.setMax(locationList.size()-1);
+        timeProgress.setProgress(0);
+        toolbar.setTitle("   "+df.format(locations.get(0).getDate()));
+        timeProgress.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
+                trackedPath.setPoints(locationList.subList(0,i));
+
+                toolbar.setTitle("   "+df.format(locations.get(i).getDate()));
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+                Log.d(TAG,"Seek moving");
+
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+
+            }
+        });
+
+    }
+
 
 
 }

@@ -4,6 +4,8 @@ import android.app.Activity;
 import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.view.Window;
 import android.widget.Button;
@@ -38,24 +40,25 @@ import otamendi.urtzi.com.safeway.Utils.AuthService;
 import otamendi.urtzi.com.safeway.Utils.DatabaseService;
 import otamendi.urtzi.com.safeway.Utils.SimpleCallback;
 
-public class signIn extends Activity {
+public class signIn extends AppCompatActivity {
 
     private static final String TAG = "SignIn";
-    private static final int RESULT_PICK_CONTACT = 10;
     private Button verifyButton;
     private IntlPhoneInput phoneInputView;
-    private User user;
+    private Toolbar toolbar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        hideActionBar();
+
         setContentView(R.layout.activity_sign_in);
         if (AuthService.SignedIn()) {
             FCMService.AutoInitEnable();
             DatabaseService.Configured(succesConfig, errorToast);
         }
         bindUI();
+        setSupportActionBar(toolbar);
+        configToolbar();
         verifyButton.setOnClickListener(
                 new View.OnClickListener() {
                     @Override
@@ -66,10 +69,15 @@ public class signIn extends Activity {
         );
     }
 
+    private void configToolbar() {
+        toolbar.setTitle(R.string.title_phoneAuth);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(false);
+    }
 
     private void bindUI() {
         verifyButton = (Button) findViewById(R.id.verifyButton);
         phoneInputView = (IntlPhoneInput) findViewById(R.id.phone_input);
+        toolbar= findViewById(R.id.signIn_toolbar);
     }
 
     private void verifyNumber() {
@@ -93,33 +101,18 @@ public class signIn extends Activity {
                     @Override
                     public void onVerificationCompleted(PhoneAuthCredential phoneAuthCredential) {
                         Log.d(TAG, "onVerificationCompleted:" + phoneAuthCredential);
-
-
                         signInWithPhoneAuthCredential(phoneAuthCredential);
                     }
 
                     @Override
                     public void onVerificationFailed(FirebaseException e) {
                         Log.w(TAG, "onVerificationFailed", e);
-
-                        if (e instanceof FirebaseAuthInvalidCredentialsException) {
-                            // Invalid request
-                            // ...
-                        } else if (e instanceof FirebaseTooManyRequestsException) {
-                            // The SMS quota for the project has been exceeded
-                            // ...
-                        }
                     }
-
 
                     @Override
                     public void onCodeSent(String verificationId,
                                            PhoneAuthProvider.ForceResendingToken token) {
-
                         Log.d(TAG, "onCodeSent:" + verificationId);
-
-                        // mVerificationId = verificationId;
-                        //mResendToken = token;
                         createIntentSMS(verificationId);
 
                     }
@@ -156,18 +149,11 @@ public class signIn extends Activity {
     }
 
 
-    public  SimpleCallback<String> errorToast= new SimpleCallback<String>() {
-        @Override
-        public void callback(String data) {
-            Toast.makeText(signIn.this,data, Toast.LENGTH_LONG).show();
-            finish();
-        }
-    };
 
-    public  SimpleCallback<User> succesConfig= new SimpleCallback<User>() {
+    public  SimpleCallback<Boolean> succesConfig= new SimpleCallback<Boolean>() {
         @Override
-        public void callback(User data) {
-            if(data!=null){
+        public void callback(Boolean data) {
+            if(data){
                 sendHome();
             }else{
                 pickContact();
@@ -175,15 +161,24 @@ public class signIn extends Activity {
         }
     };
 
+    public SimpleCallback<String> errorToast= new SimpleCallback<String>() {
+        @Override
+        public void callback(String data) {
+            Toast.makeText(signIn.this,data, Toast.LENGTH_LONG).show();
+            finish();
+        }
+    };
 
     private void sendHome() {
-        Intent intent = new Intent(signIn.this, HomeActivity.class);
+        Intent intent = new Intent(signIn.this, safeWayHome.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         startActivity(intent);
         finish();
     }
+
+
 
 
     private void pickContact() {
@@ -196,9 +191,7 @@ public class signIn extends Activity {
 
 
 
-    private void hideActionBar(){
-        requestWindowFeature(Window.FEATURE_NO_TITLE);
-    }
+
 
 
 }

@@ -4,6 +4,8 @@ import android.app.Activity;
 import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
 import android.view.Window;
@@ -32,10 +34,10 @@ import otamendi.urtzi.com.safeway.R;
 import otamendi.urtzi.com.safeway.Utils.DatabaseService;
 import otamendi.urtzi.com.safeway.Utils.SimpleCallback;
 
-public class SMS_Code extends Activity {
+public class SMS_Code extends AppCompatActivity {
 
 
-
+    private Toolbar toolbar;
     private static final String TAG = "SMS_Code";
     private CodeInputView codeView;
     private Button SMSverifyButton;
@@ -43,9 +45,10 @@ public class SMS_Code extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        hideActionBar();
         setContentView(R.layout.activity_sms__code);
         bindUI();
+        setSupportActionBar(toolbar);
+        configToolbar();
         Bundle extras = getIntent().getExtras();
         final String verificationID = extras.getString("verificationID");
         SMSverifyButton.setOnClickListener(  new View.OnClickListener() {
@@ -56,10 +59,18 @@ public class SMS_Code extends Activity {
         });
     }
     public void bindUI(){
+        toolbar = (Toolbar) findViewById(R.id.smsCode_toolbar);
        codeView= (CodeInputView) findViewById(R.id.smsInput);
         SMSverifyButton= (Button) findViewById(R.id.SMSverifyButton);
     }
+    private void configToolbar() {
+        Log.d(TAG, "+++++++ Configuring toolbar");
+        getSupportActionBar().setDisplayShowTitleEnabled(true);
+        toolbar.setTitle(R.string.title_activity_sms_code);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(false);
 
+
+    }
 
 
     private void verifySMS(final String verificationId) {
@@ -71,19 +82,15 @@ public class SMS_Code extends Activity {
     private void signInWithPhoneAuthCredential(PhoneAuthCredential credential) {
         FirebaseAuth mAuth = FirebaseAuth.getInstance();
         mAuth.signInWithCredential(credential)
-                .addOnCompleteListener((Executor) this, new OnCompleteListener<AuthResult>() {
+                .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         if (task.isSuccessful()) {
-                            // Sign in success, update UI with the signed-in User's information
                             Log.d(TAG, "signInWithCredential:success");
-
                             DatabaseService.Configured(succesConfig, errorToast);
                         } else {
-                            // Sign in failed, display a message and update the UI
                             Log.w(TAG, "signInWithCredential:failure", task.getException());
                             if (task.getException() instanceof FirebaseAuthInvalidCredentialsException) {
-                                // The verification code entered was invalid
                             }
                         }
                     }
@@ -91,7 +98,7 @@ public class SMS_Code extends Activity {
     }
 
     private void sendHome(){
-        Intent intent = new Intent ( SMS_Code.this ,HomeActivity.class );
+        Intent intent = new Intent ( SMS_Code.this ,safeWayHome.class );
         intent.setFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -101,6 +108,9 @@ public class SMS_Code extends Activity {
 
     private void pickContact(){
         Intent intent = new Intent(SMS_Code.this, emergencyPhone.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         startActivity(intent);
         finish();
 
@@ -114,10 +124,10 @@ public class SMS_Code extends Activity {
         }
     };
 
-    public  SimpleCallback<User> succesConfig= new SimpleCallback<User>() {
+    public  SimpleCallback<Boolean> succesConfig= new SimpleCallback<Boolean>() {
         @Override
-        public void callback(User data) {
-            if(data!=null){
+        public void callback(Boolean data) {
+            if(data){
                 sendHome();
             }else{
                 pickContact();
@@ -126,8 +136,6 @@ public class SMS_Code extends Activity {
     };
 
 
-    private void hideActionBar(){
-        requestWindowFeature(Window.FEATURE_NO_TITLE);
-    }
+
 
 }

@@ -71,4 +71,8 @@ public class myLocation {
     public int getUsage() {
         return usage;
     }
+
+    public void setName(String name) {
+        this.name = name;
+    }
 }
