@@ -9,15 +9,12 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.google.android.gms.maps.model.LatLng;
-
 import java.util.List;
 
-import otamendi.urtzi.com.safeway.Domain.myLocation;
 import otamendi.urtzi.com.safeway.R;
+import otamendi.urtzi.com.safeway.Utils.ComplexCallback;
 import otamendi.urtzi.com.safeway.Utils.DatabaseService;
 import otamendi.urtzi.com.safeway.Utils.SimpleCallback;
-import otamendi.urtzi.com.safeway.Utils.mapsService;
 import otamendi.urtzi.com.safeway.Utils.onRecyclerViewClickListener;
 
 public class linkedUsersAdapter  extends RecyclerView.Adapter<linkedUsersAdapter.ViewHolder> {
@@ -63,8 +60,8 @@ public class linkedUsersAdapter  extends RecyclerView.Adapter<linkedUsersAdapter
 
         public ViewHolder(View itemView, onRecyclerViewClickListener listener) {
             super(itemView);
-            name = (TextView) itemView.findViewById(R.id.users_name);
-            image = (ImageView) itemView.findViewById(R.id.gps_icon);
+            name = itemView.findViewById(R.id.users_name);
+            image = itemView.findViewById(R.id.gps_icon);
             this.listener= listener;
             itemView.setOnClickListener(this);
 
@@ -77,12 +74,16 @@ public class linkedUsersAdapter  extends RecyclerView.Adapter<linkedUsersAdapter
 
         }
 
-        private SimpleCallback<Boolean> isTrackingCallback= new SimpleCallback<Boolean>() {
+        private ComplexCallback<Boolean,Boolean> isTrackingCallback= new ComplexCallback<Boolean,Boolean>() {
             @Override
-            public void callback(Boolean data) {
-                if(data){
+            public void callback(Boolean isTracking, Boolean emergency) {
+                if(isTracking){
                     tracking=true;
-                    image.setImageResource(R.drawable.ic_gps_fixed_24px);
+                    if(emergency){
+                        image.setImageResource(R.drawable.ic_baseline_warning_24px);
+                    }else{
+                        image.setImageResource(R.drawable.ic_gps_fixed_24px);
+                    }
                 }
             }
         };

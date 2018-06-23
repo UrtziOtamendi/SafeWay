@@ -11,8 +11,8 @@ public class User {
 
     private String emergencyNumber;
     private String password ;
-    private linkedID link;
-    private Map<String, String> linkedWithID = new HashMap<>();
+    private receptorID receptorsID;
+    private Map<String, String> linkedID = new HashMap<>();
     private String notificationToken;
 
 // Constructor
@@ -26,54 +26,35 @@ public class User {
         emergencyNumber=emNum;
         password=pass;
         notificationToken=token;
-        link= new linkedID();
+        receptorsID= new receptorID();
     }
 
-    public User(String emNum, String pass, String token, linkedID links){
+    public User(String emNum, String pass, String token, receptorID links){
         emergencyNumber=emNum;
         password=pass;
         notificationToken=token;
-        link= links;
+        receptorsID= links;
     }
 
-    public User(String emNum, String pass, String token, linkedID links, Map<String, String> linkedWithID){
+    public User(String emNum, String pass, String token, receptorID links, Map<String, String> linkedWithID){
         emergencyNumber=emNum;
         password=pass;
         notificationToken=token;
-        link= links;
-        this.linkedWithID= linkedWithID;
+        receptorsID= links;
+        this.linkedID= linkedWithID;
     }
 
-    public void updateLink(linkedID newLink){
-        link=newLink;
-    }
 
-    public void linkID(String name, String ID){
-
-        linkedWithID.put(name,ID);
-    }
-
-    public Map<String, Object> toMap() {
-        HashMap<String, Object> result = new HashMap<>();
-
-        result.put("emergencyNumber", emergencyNumber);
-        result.put("password", password);
-        result.put("notificationToken", notificationToken);
-        result.put("linkedIDs", linkedWithID);
-        result.put("receptorsID", link.toMap());
-
-        return result;
-    }
 
 
     @Override
     public String toString() {
-        return "User{" +
-                "emergencyNumber='" + emergencyNumber + '\'' +
-                ", password='" + password + '\'' +
-                ", link=" + link +
-                ", linkedWithID=" + linkedWithID.toString() +
-                ", notificationToken='" + notificationToken + '\'' +
+        return "User{" + '\n' +
+                "   emergencyNumber='" + emergencyNumber + '\n' +
+                "   password='" + password + '\n' +
+                "   receptorsID=" + receptorsID.toString() + '\n' +
+                "   linkedID=" + linkedID.toString() + '\n' +
+                "   notificationToken='" + notificationToken + '\n' +
                 '}';
     }
 
@@ -82,7 +63,7 @@ public class User {
     }
 
     public Map<String, String> getLinkedWithID() {
-        return linkedWithID;
+        return linkedID;
     }
 
     public String getPassword() {
@@ -93,8 +74,8 @@ public class User {
         return notificationToken;
     }
 
-    public linkedID getLink() {
-        return link;
+    public receptorID getLink() {
+        return receptorsID;
     }
 
     public void setEmergencyNumber(String emergencyNumber) {
@@ -105,12 +86,12 @@ public class User {
         this.password = password;
     }
 
-    public void setLink(linkedID link) {
-        this.link = link;
+    public void setLink(receptorID link) {
+        this.receptorsID = link;
     }
 
     public void setLinkedWithID(Map<String, String> linkedWithID) {
-        this.linkedWithID = linkedWithID;
+        this.linkedID = linkedWithID;
     }
 
     public void setNotificationToken(String notificationToken) {

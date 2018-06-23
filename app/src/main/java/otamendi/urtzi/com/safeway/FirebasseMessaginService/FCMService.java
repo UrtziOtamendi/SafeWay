@@ -1,21 +1,14 @@
 package otamendi.urtzi.com.safeway.FirebasseMessaginService;
 
 import android.annotation.SuppressLint;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.support.annotation.NonNull;
-import android.support.v7.app.AlertDialog;
-import android.text.InputType;
 import android.util.Log;
-import android.widget.EditText;
-import android.widget.Toast;
 
 import com.google.android.gms.tasks.Continuation;
 import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.functions.FirebaseFunctions;
 import com.google.firebase.functions.FirebaseFunctionsException;
@@ -24,19 +17,9 @@ import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
 
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.io.BufferedInputStream;
-import java.io.InputStream;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 
-import otamendi.urtzi.com.safeway.Activities.safeWayHome;
 import otamendi.urtzi.com.safeway.Domain.User;
 import otamendi.urtzi.com.safeway.R;
 import otamendi.urtzi.com.safeway.Utils.DatabaseService;
@@ -80,27 +63,29 @@ public class FCMService extends FirebaseMessagingService {
             }
             if (data.get("type").compareTo("emergencyCall") == 0 && sharedPreferences.readBoolean(MainApplication.getAppContext(), "tracking")) {
                 Log.d(TAG, "emergencyCall");
-                DatabaseService.getUser(emergencyCallback, new SimpleCallback<String>() {
-                    @Override
-                    public void callback(String data) {
-                        Log.e(TAG, data);
-                    }
-                });
+                emergencyCall();
             }
             if (data.get("type").compareTo("alarmOn") == 0 && sharedPreferences.readBoolean(MainApplication.getAppContext(), "tracking")) {
                 Log.d(TAG, "alarmOn");
-                sharedPreferences.writeBoolean(this, "alarmOn", true);
-                mediaPlayer = MediaPlayer.create(this, R.raw.alarm);
-                try {
-                    mediaPlayer.setVolume(8f, 8f);
-                    mediaPlayer.setLooping(true);
-                } catch (Exception e) {
-                    Log.e(TAG, e.toString());
-                }
-                mediaPlayer.start();
+                alarmActivate();
 
-                sharedPreferences.writeBoolean(this, "alarmOn", true);
             }
+            if (data.get("type").compareTo("emergency") == 0 && sharedPreferences.readBoolean(MainApplication.getAppContext(), "tracking")) {
+                Log.d(TAG, "emergency");
+                String userUid = data.get("user");
+                String name = data.get("name");
+                boolean emergency = Boolean.parseBoolean(data.get("emergency"));
+                Log.d(TAG, "" + emergency);
+                if(emergency){
+                   emergencyActivated(userUid, name);
+                }else{
+                    emergencyDeactivated(userUid, name);
+
+                }
+
+
+            }
+
 
         }
 
@@ -122,7 +107,7 @@ public class FCMService extends FirebaseMessagingService {
                 .call(object)
                 .continueWith(new Continuation<HttpsCallableResult, String>() {
                     @Override
-                    public String then(@NonNull Task<HttpsCallableResult> task) throws Exception {
+                    public String then(@NonNull Task<HttpsCallableResult> task) {
                         // This continuation runs on either success or failure, but if the task
                         // has failed then getResult() will throw an Exception which will be
                         // propagated down.
@@ -146,6 +131,16 @@ public class FCMService extends FirebaseMessagingService {
                 });
     }
 
+    public  void emergencyCall(){
+        DatabaseService.getUser(emergencyCallback, new SimpleCallback<String>() {
+            @Override
+            public void callback(String data) {
+                Log.e(TAG, data);
+            }
+        });
+    }
+
+
     //emergencyCallback
     private SimpleCallback<User> emergencyCallback = new SimpleCallback<User>() {
         @SuppressLint("MissingPermission")
@@ -159,9 +154,31 @@ public class FCMService extends FirebaseMessagingService {
     };
 
 
+    public static void alarmActivate(){
+
+        sharedPreferences.writeBoolean(MainApplication.getAppContext(), "alarmOn", true);
+        mediaPlayer = MediaPlayer.create(MainApplication.getAppContext(), R.raw.alarm);
+        try {
+            mediaPlayer.setVolume(8f, 8f);
+            mediaPlayer.setLooping(true);
+        } catch (Exception e) {
+            Log.e(TAG, e.toString());
+        }
+        mediaPlayer.start();
+
+        sharedPreferences.writeBoolean(MainApplication.getAppContext(), "alarmOn", true);
+    }
     public static void stopMediaPlayer() {
         if (mediaPlayer != null)
             mediaPlayer.stop();
+    }
+
+    public static void emergencyActivated(String userUid, String name){
+        notificationService.createEmergencyActivatedNotification(name, userUid);
+    }
+
+    public static  void emergencyDeactivated(String userUid, String name){
+        notificationService.createEmergencyDeactivatedNotification(name, userUid);
     }
 
 

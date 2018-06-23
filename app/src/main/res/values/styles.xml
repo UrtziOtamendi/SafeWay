@@ -12,18 +12,4 @@
     </style>
 
 
-
-    <style name="AuthTheme" parent="Theme.AppCompat.DayNight" >
-        <item name="android:colorPrimary">@color/primary_material_light</item>
-        <item name="android:colorBackground">@color/background_material_light</item>
-        <item name="android:colorAccent">@color/accent_material_light</item>
-    </style>
-
-
-    <style name="separator">
-        <item name="android:layout_width">200dp</item>
-        <item name="android:layout_height">1dp</item>
-        <item name="android:colorBackground">@color/colorAccent</item>
-    </style>
-
 </resources>

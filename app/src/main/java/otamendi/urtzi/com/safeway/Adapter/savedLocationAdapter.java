@@ -2,8 +2,6 @@ package otamendi.urtzi.com.safeway.Adapter;
 
 import android.app.Activity;
 import android.content.Context;
-import android.support.v4.view.PagerAdapter;
-
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -20,41 +18,70 @@ import otamendi.urtzi.com.safeway.R;
 import otamendi.urtzi.com.safeway.Utils.mapsService;
 import otamendi.urtzi.com.safeway.Utils.onRecyclerViewClickListener;
 
-public class savedLocationAdapter extends RecyclerView.Adapter<savedLocationAdapter.ViewHolder>  {
+public class savedLocationAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
-    private final static String TAG="savedLocationAdapter";
+    private final static String TAG = "savedLocationAdapter";
     private Context context;
     private List<myLocation> locationList;
-    private onRecyclerViewClickListener listener;
+    private onRecyclerViewClickListener listener,listenerNewLocation;
 
     private int layout;
     private LatLng position;
     private Activity activity;
 
-    public savedLocationAdapter(List<myLocation> locations, LatLng pos, int layout, Activity activity, onRecyclerViewClickListener listener ){
+    public savedLocationAdapter(List<myLocation> locations, LatLng pos, int layout, Activity activity, onRecyclerViewClickListener listener, onRecyclerViewClickListener listener0) {
 
-        locationList=locations;
-        this.layout=layout;
-        this.activity=activity;
-        position=pos;
-        this.listener=listener;
+        locationList = locations;
+        this.layout = layout;
+        this.activity = activity;
+        position = pos;
+        this.listener = listener;
+        this.listenerNewLocation= listener0;
     }
 
     @Override
-    public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        View v = LayoutInflater.from(activity).inflate(layout, parent, false);
-        context = parent.getContext();
-        ViewHolder vh = new ViewHolder(v, listener);
-        return vh;
+    public int getItemViewType(int position) {
+        int position2 = position % locationList.size();
+        if (locationList.size() == 1) {
+            return 0;
+        }
+        if (locationList.size() == position2+1) {
+            return 0;
+        }
+        return 1;
     }
 
     @Override
-    public void onBindViewHolder(ViewHolder holder, int position) {
-        if(position>0){
-            position = position % locationList.size();
-            holder.bind(locationList.get(position));
+    public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        switch (viewType) {
+            case 0:
+                View v0 = LayoutInflater.from(activity).inflate(R.layout.view_save_new_location, parent, false);
+                context = parent.getContext();
+                return new ViewHolder0(v0, listenerNewLocation);
+
+            case 1:
+                View v = LayoutInflater.from(activity).inflate(layout, parent, false);
+                context = parent.getContext();
+                return new ViewHolder1(v, listener);
+
         }
 
+        return null;
+    }
+
+    @Override
+    public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
+        switch (holder.getItemViewType()){
+            case 0:
+                break;
+
+            case 1:
+                ViewHolder1 holder1= (ViewHolder1) holder;
+                int position2 = position % locationList.size();
+                holder1.itemView.setLongClickable(true);
+                holder1.bind(locationList.get(position2));
+                break;
+        }
     }
 
     @Override
@@ -68,46 +95,70 @@ public class savedLocationAdapter extends RecyclerView.Adapter<savedLocationAdap
         notifyItemRemoved(index);
     }
 
-    public void updateItem(int index,String name) {
+    public void updateItem(int index, String name) {
         locationList.get(index).setName(name);
         notifyItemChanged(index);
     }
 
     public void addItem(myLocation location) {
-        locationList.add(location);
-        notifyItemInserted(locationList.size()-1);
+        locationList.add(locationList.size()-1,location);
+        notifyItemInserted(locationList.size() - 2);
     }
 
 
+    public class ViewHolder1 extends RecyclerView.ViewHolder implements View.OnClickListener {
 
-    public class ViewHolder extends RecyclerView.ViewHolder  implements View.OnClickListener{
-
-        public TextView address,name,kmToGo;
+        public TextView address, name, kmToGo;
         private onRecyclerViewClickListener listener;
 
 
-        public ViewHolder(View itemView, onRecyclerViewClickListener listener) {
+        public ViewHolder1(View itemView, onRecyclerViewClickListener listener) {
             super(itemView);
-            address = (TextView) itemView.findViewById(R.id.savedAddressName);
-            name = (TextView) itemView.findViewById(R.id.savedLocationName);
-            kmToGo = (TextView) itemView.findViewById(R.id.kmToGoal);
-            this.listener= listener;
+            address = itemView.findViewById(R.id.savedAddressName);
+            name = itemView.findViewById(R.id.savedLocationName);
+            kmToGo = itemView.findViewById(R.id.kmToGoal);
+            this.listener = listener;
             itemView.setOnClickListener(this);
 
         }
 
 
-        public void bind(final myLocation location ) {
-            String distance = mapsService.distanceToGoal(new LatLng(location.getLat(),location.getLon()),position);
-            if(distance.compareTo("")==0) {
+        public void bind(final myLocation location) {
+            String distance = mapsService.distanceToGoal(new LatLng(location.getLat(), location.getLon()), position);
+            if (distance.compareTo("") == 0) {
                 kmToGo.setText("");
-            }else{
+            } else {
                 kmToGo.setText(distance + " Km");
             }
             address.setText(location.getAddress());
             name.setText(location.getName());
 
         }
+
+        @Override
+        public void onClick(View view) {
+            listener.onClick(view, getAdapterPosition());
+        }
+
+
+    }
+
+    public class ViewHolder0 extends RecyclerView.ViewHolder implements View.OnClickListener {
+
+        private onRecyclerViewClickListener listener;
+
+
+        public ViewHolder0(View itemView, onRecyclerViewClickListener listener) {
+            super(itemView);
+            this.listener = listener;
+            itemView.setOnClickListener(this);
+
+        }
+
+        public void bind(final myLocation location) {
+            
+        }
+
 
         @Override
         public void onClick(View view) {

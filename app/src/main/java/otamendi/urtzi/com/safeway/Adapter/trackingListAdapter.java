@@ -6,7 +6,6 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 import java.text.DateFormat;
@@ -15,8 +14,6 @@ import java.util.List;
 
 import otamendi.urtzi.com.safeway.Domain.trackingSesion;
 import otamendi.urtzi.com.safeway.R;
-import otamendi.urtzi.com.safeway.Utils.DatabaseService;
-import otamendi.urtzi.com.safeway.Utils.SimpleCallback;
 import otamendi.urtzi.com.safeway.Utils.onRecyclerViewClickListener;
 
 public class trackingListAdapter  extends RecyclerView.Adapter<trackingListAdapter.ViewHolder> {
@@ -58,9 +55,9 @@ public class trackingListAdapter  extends RecyclerView.Adapter<trackingListAdapt
 
         public ViewHolder(View itemView, onRecyclerViewClickListener listener) {
             super(itemView);
-            address = (TextView) itemView.findViewById(R.id.address_text);
-            endDate = (TextView) itemView.findViewById(R.id.end_date);
-            startDate = (TextView) itemView.findViewById(R.id.start_date);
+            address = itemView.findViewById(R.id.address_text);
+            endDate = itemView.findViewById(R.id.end_date);
+            startDate = itemView.findViewById(R.id.start_date);
 
             this.listener= listener;
             itemView.setOnClickListener(this);

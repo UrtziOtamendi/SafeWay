@@ -6,7 +6,6 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Build;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationManagerCompat;
@@ -16,7 +15,6 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 
-import otamendi.urtzi.com.safeway.Activities.linkedUsersList;
 import otamendi.urtzi.com.safeway.Activities.safeWayHome;
 import otamendi.urtzi.com.safeway.Activities.trackingLiveWay;
 import otamendi.urtzi.com.safeway.Activities.usersTrackingList;
@@ -52,7 +50,7 @@ public class notificationService {
         Log.d(TAG,"creating notif");
         createNotificationChannel(context);
         NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(context, CHANNEL_ID)
-                .setSmallIcon(R.drawable.ic_notifications_black_24dp)
+                .setSmallIcon(R.mipmap.ic_launcher_foreground)
                 .setContentTitle("Tracking")
                 .setContentText("You are goingo to "+ location+ " your position is being recorded.")
                 .setContentIntent(pendingIntent)
@@ -77,7 +75,7 @@ public class notificationService {
 
         createNotificationChannel(MainApplication.getAppContext());
         NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(MainApplication.getAppContext(), CHANNEL_ID)
-                .setSmallIcon(R.drawable.ic_notifications_black_24dp)
+                .setSmallIcon(R.mipmap.ic_launcher_foreground)
                 .setContentTitle(MainApplication.getAppContext().getResources().getString(R.string.notif_tracking_started))
                 .setContentText(name +" "+ MainApplication.getAppContext().getResources().getString(R.string.notif_tracking_started_body))
                 .setContentIntent(pendingIntent)
@@ -110,7 +108,7 @@ public class notificationService {
 
         createNotificationChannel(MainApplication.getAppContext());
         NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(MainApplication.getAppContext(), CHANNEL_ID)
-                .setSmallIcon(R.drawable.ic_notifications_black_24dp)
+                .setSmallIcon(R.mipmap.ic_launcher_foreground)
                 .setContentTitle(MainApplication.getAppContext().getResources().getString(R.string.notif_tracking_stoped))
                 .setContentText(name +" "+ MainApplication.getAppContext().getResources().getString(R.string.notif_tracking_stoped_body))
                 .setContentIntent(pendingIntent)
@@ -123,5 +121,60 @@ public class notificationService {
         // notificationId is a unique int for each notification that you must define
         notificationManager.notify(id, mBuilder.build());
         sharedPreferences.writeInt(MainApplication.getAppContext(),"notify_id",id);
+    }
+
+    public static void createEmergencyActivatedNotification(String name, String userUid ){
+        Intent intent = new Intent(MainApplication.getAppContext(), trackingLiveWay.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        intent.putExtra("users_uid", userUid);
+
+        NotificationManagerCompat notificationManager = NotificationManagerCompat.from(MainApplication.getAppContext());
+
+        PendingIntent pendingIntent = PendingIntent.getActivity(MainApplication.getAppContext(), 0, intent, 0);
+        Log.d(TAG,"createEmergencyActivatedNotification ");
+
+        createNotificationChannel(MainApplication.getAppContext());
+        NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(MainApplication.getAppContext(), CHANNEL_ID)
+                .setSmallIcon(R.mipmap.ic_launcher_foreground)
+                .setContentTitle(MainApplication.getAppContext().getResources().getString(R.string.notif_emergency_title))
+                .setContentText(name +" "+ MainApplication.getAppContext().getResources().getString(R.string.notif_emergency_body))
+                .setContentIntent(pendingIntent)
+                .setOngoing(false)
+                .setPriority(NotificationCompat.PRIORITY_DEFAULT);
+
+
+        Date now = new Date();
+        int id = Integer.parseInt(new SimpleDateFormat("ddHHmmss",  Locale.US).format(now));
+        // notificationId is a unique int for each notification that you must define
+        notificationManager.notify(id, mBuilder.build());
+
+    }
+
+
+    public static void createEmergencyDeactivatedNotification(String name, String userUid ){
+        Intent intent = new Intent(MainApplication.getAppContext(), trackingLiveWay.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        intent.putExtra("users_uid", userUid);
+
+        NotificationManagerCompat notificationManager = NotificationManagerCompat.from(MainApplication.getAppContext());
+
+        PendingIntent pendingIntent = PendingIntent.getActivity(MainApplication.getAppContext(), 0, intent, 0);
+        Log.d(TAG,"createEmergencyActivatedNotification ");
+
+        createNotificationChannel(MainApplication.getAppContext());
+        NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(MainApplication.getAppContext(), CHANNEL_ID)
+                .setSmallIcon(R.mipmap.ic_launcher_foreground)
+                .setContentTitle(MainApplication.getAppContext().getResources().getString(R.string.notif_noemergency_title))
+                .setContentText(name +" "+ MainApplication.getAppContext().getResources().getString(R.string.notif_noemergency_body))
+                .setContentIntent(pendingIntent)
+                .setOngoing(false)
+                .setPriority(NotificationCompat.PRIORITY_DEFAULT);
+
+
+        Date now = new Date();
+        int id = Integer.parseInt(new SimpleDateFormat("ddHHmmss",  Locale.US).format(now));
+        // notificationId is a unique int for each notification that you must define
+        notificationManager.notify(id, mBuilder.build());
+
     }
 }

@@ -12,7 +12,7 @@ public class myLocation {
     private double lon;
     private int usage=0;
 
-    public myLocation(){};
+    public myLocation(){}
 
     public myLocation(String name, String address, double lat, double lon) {
         this.name = name;

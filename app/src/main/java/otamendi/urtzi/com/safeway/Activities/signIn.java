@@ -1,39 +1,29 @@
 package otamendi.urtzi.com.safeway.Activities;
 
-import android.app.Activity;
 import android.content.Intent;
-import android.support.annotation.NonNull;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.View;
-import android.view.Window;
 import android.widget.Button;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.FirebaseException;
-import com.google.firebase.FirebaseTooManyRequestsException;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException;
-import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.PhoneAuthCredential;
 import com.google.firebase.auth.PhoneAuthProvider;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
 
 import net.rimoto.intlphoneinput.IntlPhoneInput;
 
 import java.util.concurrent.TimeUnit;
 
-import android.util.Log;
-
-import otamendi.urtzi.com.safeway.Domain.User;
+import es.dmoral.toasty.Toasty;
 import otamendi.urtzi.com.safeway.FirebasseMessaginService.FCMService;
 import otamendi.urtzi.com.safeway.R;
 import otamendi.urtzi.com.safeway.Utils.AuthService;
@@ -75,8 +65,8 @@ public class signIn extends AppCompatActivity {
     }
 
     private void bindUI() {
-        verifyButton = (Button) findViewById(R.id.verifyButton);
-        phoneInputView = (IntlPhoneInput) findViewById(R.id.phone_input);
+        verifyButton = findViewById(R.id.verifyButton);
+        phoneInputView = findViewById(R.id.phone_input);
         toolbar= findViewById(R.id.signIn_toolbar);
     }
 
@@ -86,7 +76,8 @@ public class signIn extends AppCompatActivity {
             myInternationalNumber = phoneInputView.getNumber();
             phoneAuth(myInternationalNumber);
         } else {
-            Toast.makeText(this, "Numero no valido", Toast.LENGTH_SHORT).show();
+            Toasty.error(this, getResources().getString(R.string.invalid_number), Toast.LENGTH_LONG,true).show();
+
         }
     }
 
@@ -164,7 +155,8 @@ public class signIn extends AppCompatActivity {
     public SimpleCallback<String> errorToast= new SimpleCallback<String>() {
         @Override
         public void callback(String data) {
-            Toast.makeText(signIn.this,data, Toast.LENGTH_LONG).show();
+            Toasty.error(signIn.this, getResources().getString(R.string.error), Toast.LENGTH_LONG,true).show();
+
             finish();
         }
     };

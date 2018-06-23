@@ -14,9 +14,9 @@
     <application
         android:name=".Utils.MainApplication"
         android:allowBackup="true"
-        android:icon="@mipmap/ic_launcher"
+        android:icon="@mipmap/ic_launcher_foreground"
         android:label="@string/app_name"
-        android:roundIcon="@mipmap/ic_launcher_round"
+        android:roundIcon="@mipmap/ic_launcher_foreground"
         android:supportsRtl="true"
         android:theme="@style/MainTheme">
 
@@ -30,21 +30,15 @@
         </activity>
         <activity
             android:name=".Activities.signIn"
-            android:label="@string/phone_title"></activity>
+            android:label="@string/phone_title" />
         <activity
             android:name=".Activities.SMS_Code"
             android:label="@string/title_SMS" />
-        <activity
-            android:name=".Activities.HomeActivity"
-            android:label="@string/title_activity_home" />
         <activity android:name=".Activities.scannerQR" />
         <activity android:name=".Activities.emergencyPhone" />
         <activity
             android:name=".Activities.PasswordConfig"
             android:label="@string/title_Password" />
-        <activity
-            android:name=".Activities.linkUsers"
-            android:label="@string/title_activity_auth__link" />
 
         <!-- >Services<! -->
         <service
@@ -88,10 +82,10 @@
         <meta-data
             android:name="preloaded_fonts"
             android:resource="@array/preloaded_fonts" />
+        <meta-data
+            android:name="com.google.firebase.ml.vision.DEPENDENCIES"
+            android:value="barcode" />
 
-        <activity
-            android:name=".Activities.saveLocation"
-            android:label="@string/title_activity_save_location" />
         <activity android:name=".Activities.safeWayHome" />
 
         <service
@@ -111,7 +105,8 @@
             android:name=".Activities.mapTrackingSesion"
             android:label="@string/title_activity_map_tracking_sesion" />
         <activity android:name=".Activities.trackingLiveWay" />
-        <activity android:name=".Activities.settingsActivity"></activity>
+        <activity android:name=".Activities.settingsActivity" />
+        <activity android:name=".Activities.receptorsUsers"></activity>
     </application>
 
 </manifest>

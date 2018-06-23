@@ -4,12 +4,6 @@ import android.Manifest;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.support.v4.app.ActivityCompat;
-import android.util.Log;
-
-import java.util.ArrayList;
-import java.util.List;
-
-import otamendi.urtzi.com.safeway.Activities.safeWayHome;
 
 public class permissionModule {
 

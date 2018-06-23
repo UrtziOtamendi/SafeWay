@@ -2,8 +2,6 @@
     <string name="app_name" translatable="false">SafeWay</string>
 
     <string name="default_notification_channel_id" translatable="false">com.urtzi.otamendi</string>
-    <string name="title_activity_home">HomeActivity</string>
-    <string name="title_home">Home</string>
     <string name="title_phoneAuth">Phone Authentication</string>
     <string name="title_SMS">SMS Code</string>
     <string name="title_Password">Password</string>
@@ -13,18 +11,7 @@
     <string name="button_password">Set Password</string>
 
 
-    <string name="title_dashboard">Dashboard</string>
-    <string name="title_notifications">Notifications</string>
-    <string name="insert_phone">Insert your Phone number and country</string>
-    <string name="title_activity_auth__link">Auth_Link</string>
-    <string name="title_activity_save_location">Save Location</string>
-    <string name="saveLocation_GPS_Request_title">GPS</string>
-    <string name="saveLocation_GPS_Request_message">Give me permission</string>
     <string name="ok">Ok</string>
-    <string name="saveLocation_current_title">You are here</string>
-    <string name="map_not_loaded">Map not loaded yet... Wait</string>
-    <string name="point_not_selected">You have to select one location</string>
-    <string name="error_saving_location">An error ocurred saving location, sory</string>
     <string name="set_new_location_title">Location Name</string>
     <string name="set_new_location_message">Set one name to identify this location</string>
     <string name="location_name_empty">Insert location name</string>
@@ -32,17 +19,13 @@
     <string name="user_not_found">User not found</string>
     <string name="wrong_qr">Wrong QR code</string>
     <string name="error">An error occurred, sorry</string>
-    <string name="start_button">START</string>
     <string name="error_gps">Error getting your location, enable GPS</string>
-    <string name="no_distance_gps">No Signal</string>
-    <string name="starting">Starting...</string>
-    <string name="shared_preference_file_key">safe_way_preferences</string>
+    <string name="shared_preference_file_key" translatable="false">safe_way_preferences</string>
     <string name="link_new_user_title">User\'s Name</string>
     <string name="link_new_user_message">Insert the name to identify the new user</string>
     <string name="users_name_empty">You have to insert a name</string>
-    <string name="QR">QR</string>
+    <string name="QR" translatable="false">QR</string>
     <string name="QR_message">Scan QR code</string>
-    <string name="stoping">stoping...</string>
     <string name="title_activity_map_tracking_sesion">Map</string>
     <string name="destination">Destination</string>
     <string name="started">Started</string>
@@ -51,14 +34,12 @@
     <string name="delete_location_title">Delete Saved Location</string>
     <string name="delete_location_mesage">Are you sure you want to delete this saved location?</string>
     <string name="edit_location_title">Edit name</string>
-    <string name="edit_location_mesage">Set locations new name</string>
+    <string name="edit_location_mesage">Set location\'s new name</string>
     <string name="find_on_maps">Select from map</string>
-    <string name="stop">STOP</string>
     <string name="stop_tracking_title">Stop Tracking</string>
     <string name="stop_tracking_mesage">Are you sure you want to stop tracking?</string>
     <string name="yes">Yes</string>
     <string name="no">No</string>
-    <string name="have_arrived">User arrived to destination</string>
     <string name="notif_tracking_started">Tracking Started</string>
     <string name="notif_tracking_started_body">has started tracking.</string>
     <string name="notif_tracking_stoped">Tracking Stoped</string>
@@ -81,4 +62,12 @@
     <string name="change_pass_message">Insert the new password</string>
     <string name="no_camera_permission">No camera permission conceded</string>
     <string name="already_linked">User already linked</string>
+    <string name="edit">Edit</string>
+    <string name="delete">Delete</string>
+    <string name="notif_emergency_title">On emergency</string>
+    <string name="notif_emergency_body">is on a emergency.</string>
+    <string name="notif_noemergency_title">Safe</string>
+    <string name="notif_noemergency_body">is not on a emergency anymore.</string>
+    <string name="invalid_number">Wrong phone number</string>
+    <string name="receptors_title">Receptors</string>
 </resources>

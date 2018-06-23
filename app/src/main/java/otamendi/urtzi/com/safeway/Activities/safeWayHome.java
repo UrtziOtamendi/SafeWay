@@ -3,21 +3,22 @@ package otamendi.urtzi.com.safeway.Activities;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
-import android.app.Service;
+import android.app.FragmentTransaction;
 import android.content.ComponentName;
 import android.content.Context;
-import android.content.ServiceConnection;
-import android.content.SharedPreferences;
-import android.graphics.Color;
-import android.app.FragmentTransaction;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentSender;
+import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
+import android.content.res.ColorStateList;
+import android.graphics.Color;
 import android.location.Location;
 import android.media.MediaPlayer;
+import android.net.Uri;
 import android.os.BatteryManager;
 import android.os.Build;
+import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
@@ -28,19 +29,19 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.PagerSnapHelper;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.text.InputType;
 import android.util.Log;
+import android.view.ContextMenu;
 import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
@@ -61,7 +62,6 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.OnMapReadyCallback;
-
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
@@ -70,18 +70,18 @@ import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.android.gms.maps.model.RoundCap;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.firebase.auth.FirebaseAuth;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import es.dmoral.toasty.Toasty;
 import otamendi.urtzi.com.safeway.Adapter.savedLocationAdapter;
 import otamendi.urtzi.com.safeway.Domain.User;
 import otamendi.urtzi.com.safeway.Domain.myLocation;
 import otamendi.urtzi.com.safeway.FirebasseMessaginService.FCMService;
 import otamendi.urtzi.com.safeway.R;
+import otamendi.urtzi.com.safeway.Utils.AuthService;
 import otamendi.urtzi.com.safeway.Utils.DatabaseService;
 import otamendi.urtzi.com.safeway.Utils.MainApplication;
 import otamendi.urtzi.com.safeway.Utils.SimpleCallback;
@@ -95,11 +95,11 @@ public class safeWayHome extends AppCompatActivity implements OnMapReadyCallback
 
 
     private static Toolbar toolbar;
-    private List<myLocation> locationList= new ArrayList<myLocation>();
+    private List<myLocation> locationList = new ArrayList<myLocation>();
     private RecyclerView locationsPager;
     private FusedLocationProviderClient mFusedLocationClient;
     private LatLng position = new LatLng(-1, -1);
-    private FloatingActionButton edit_fab, delete_fab, save_fab, stop_fab;
+    private FloatingActionButton stop_fab, emergency_fab;
     private myLocation selectedLocation = null;
     private LinearLayoutManager manager;
     private savedLocationAdapter locationAdapter;
@@ -110,9 +110,7 @@ public class safeWayHome extends AppCompatActivity implements OnMapReadyCallback
     private FragmentTransaction fragmentTransaction;
     private static List<LatLng> trackedLocations = new ArrayList<>();
     private static Polyline trackedPath;
-    private locationService mService=null;
-    private  MediaPlayer mediaPlayer;
-    private ConstraintLayout empty_locationsPager;
+    private locationService mService = null;
     protected static final String TAG = "HOME SAFE WAY";
 
     @SuppressLint("MissingPermission")
@@ -124,138 +122,15 @@ public class safeWayHome extends AppCompatActivity implements OnMapReadyCallback
         bindUI();
         setSupportActionBar(toolbar);
         configToolbar();
-
+        locationList.add(new myLocation());
         //Permission request.
         ActivityCompat.requestPermissions(this, permissionModule.requestAllPermisions(), permissionModule.PERMISSIONS_MULTIPLE);
 
-        if(sharedPreferences.readBoolean(this,"alarmOn")) alarmAlertDialog();
+        if (sharedPreferences.readBoolean(this, "alarmOn")) alarmAlertDialog();
         DatabaseService.getSavedLocations(displayLocationsOnFragments, displayErrorPage);
         mFusedLocationClient.getLastLocation()
                 .addOnSuccessListener(this, onSuccessListener).addOnFailureListener(onFailureListener);
 
-        save_fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Log.d(TAG, "select location");
-                final EditText nameInput = new EditText(safeWayHome.this);
-                nameInput.setInputType(InputType.TYPE_CLASS_TEXT);
-                new AlertDialog.Builder(safeWayHome.this)
-                        .setTitle(R.string.set_new_location_title)
-                        .setMessage(R.string.set_new_location_message)
-                        .setView(nameInput)
-                        .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialogInterface, int i) {
-                                try {
-                                    String name = nameInput.getText().toString();
-                                    if (name == null || name.equals("")) {
-                                        Log.d(TAG, "-----> Name empty");
-                                        Toast.makeText(safeWayHome.this, R.string.location_name_empty, Toast.LENGTH_SHORT).show();
-                                    } else {
-                                        placeName = name;
-                                        createPlacePicker();
-                                    }
-                                } catch (Exception e) {
-                                    Log.e(TAG, "eerror" + e.toString());
-                                    Toast.makeText(safeWayHome.this, R.string.error, Toast.LENGTH_LONG).show();
-
-                                }
-
-                            }
-                        })
-                        .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialogInterface, int i) {
-
-                            }
-                        })
-                        .create()
-                        .show();
-            }
-        });
-        delete_fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if(locationList.size()<1) return;
-                final int position = manager.findFirstVisibleItemPosition() % locationList.size();
-                new AlertDialog.Builder(safeWayHome.this)
-                        .setTitle(R.string.delete_location_title)
-                        .setMessage(R.string.delete_location_mesage)
-                        .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialogInterface, int i) {
-
-                                try {
-                                    DatabaseService.deleteSavedLocation(locationList.get(position).getName());
-                                    locationAdapter.deleteItem(position);
-
-                                } catch (Exception e) {
-                                    Log.e(TAG, "eerror" + e.toString());
-                                    Toast.makeText(safeWayHome.this, R.string.error, Toast.LENGTH_LONG).show();
-                                }
-                                if(!(locationList.size()>0)){
-                                    show_fabs();
-                                    manageRecyclerViewVisibility();
-                                }
-
-                            }
-                        })
-                        .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialogInterface, int i) {
-
-                            }
-                        })
-                        .create()
-                        .show();
-            }
-        });
-
-        edit_fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if(locationList.size()<1) return;
-                final EditText nameInput = new EditText(safeWayHome.this);
-                nameInput.setInputType(InputType.TYPE_CLASS_TEXT);
-                final int position = manager.findFirstVisibleItemPosition() % locationList.size();
-                Log.e(TAG, "Visible item position edit " + position);
-                new AlertDialog.Builder(safeWayHome.this)
-                        .setTitle(R.string.edit_location_title)
-                        .setMessage(R.string.edit_location_mesage)
-                        .setView(nameInput)
-                        .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialogInterface, int i) {
-                                try {
-                                    String name = nameInput.getText().toString();
-                                    if (name == null || name.equals("")) {
-                                        Log.d(TAG, "-----> Name empty");
-                                        Toast.makeText(safeWayHome.this, R.string.location_name_empty, Toast.LENGTH_SHORT).show();
-                                    } else {
-                                        String oldName = locationList.get(position).getName();
-                                        locationAdapter.updateItem(position, name);
-                                        myLocation location = locationList.get(position);
-                                        manager.scrollToPosition(position+1);
-                                        DatabaseService.updateSavedLocation(location, oldName);
-                                    }
-                                } catch (Exception e) {
-                                    Log.e(TAG, "eerror" + e.toString());
-                                    Toast.makeText(safeWayHome.this, R.string.error, Toast.LENGTH_LONG).show();
-
-                                }
-
-                            }
-                        })
-                        .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialogInterface, int i) {
-
-                            }
-                        })
-                        .create()
-                        .show();
-            }
-        });
 
         stop_fab.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -275,7 +150,7 @@ public class safeWayHome extends AppCompatActivity implements OnMapReadyCallback
 
                                     } catch (Exception e) {
                                         Log.e(TAG, "eerror" + e.toString());
-                                        Toast.makeText(safeWayHome.this, R.string.error, Toast.LENGTH_LONG).show();
+                                        Toasty.error(safeWayHome.this,getResources().getString( R.string.error), Toast.LENGTH_LONG, true).show();
                                     }
 
                                 }
@@ -292,36 +167,51 @@ public class safeWayHome extends AppCompatActivity implements OnMapReadyCallback
             }
         });
 
+        emergency_fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(sharedPreferences.readBoolean(safeWayHome.this, "emergency")== false){
+                    sharedPreferences.writeBoolean(safeWayHome.this, "emergency",true);
+                    sharedPreferences.writeBoolean(safeWayHome.this, "emergencyPosition",true);
+                    DatabaseService.saveLiveTrackingEmergency(true);
+                    displayEmergencyFab(true);
+                }else{
+                    sharedPreferences.writeBoolean(safeWayHome.this, "emergencyPosition",false);
+                    sharedPreferences.writeBoolean(safeWayHome.this, "emergency",false);
+                    DatabaseService.saveLiveTrackingEmergency(false);
+                    displayEmergencyFab(false);
+                }
+            }
+        });
+
         select_location.setOnClickListener(selectLocationListener);
     }
 
 
     @Override
     protected void onDestroy() {
-        if(binded){
+        if (binded) {
 
             unbindService(mConnection);
-            binded=false;
+            binded = false;
         }
         super.onDestroy();
     }
 
     private void bindUI() {
-        toolbar = (Toolbar) findViewById(R.id.home_toolbar);
-        locationsPager = (RecyclerView) findViewById(R.id.locationsPager);
-        delete_fab = findViewById(R.id.delete_fab);
-        edit_fab = findViewById(R.id.edit_fab);
-        save_fab = findViewById(R.id.save_fab);
+        toolbar = findViewById(R.id.home_toolbar);
+        locationsPager = findViewById(R.id.locationsPager);
         stop_fab = findViewById(R.id.stop_fab);
+        emergency_fab = findViewById(R.id.emergency_fab);
         select_location = findViewById(R.id.select_location);
-        empty_locationsPager= findViewById(R.id.empty_locationsPager);
         if (sharedPreferences.readBoolean(safeWayHome.this, "tracking") == true) {
             displayTracking();
+
         } else {
             hideTracking();
         }
 
-        mediaPlayer= MediaPlayer.create(safeWayHome.this,R.raw.alarm);
+
 
     }
 
@@ -329,16 +219,16 @@ public class safeWayHome extends AppCompatActivity implements OnMapReadyCallback
     ////////////////////////////////////
     ////////////////// GET LOCATION
     ///////////////////////////////////
-    private final static int PLACE_PICKER_REQUEST_LOCATION=99;
-    private View.OnClickListener selectLocationListener = new View.OnClickListener(){
+    private final static int PLACE_PICKER_REQUEST_LOCATION = 99;
+    private View.OnClickListener selectLocationListener = new View.OnClickListener() {
 
         @Override
         public void onClick(View view) {
             PlacePicker.IntentBuilder builder = new PlacePicker.IntentBuilder();
-            try{
+            try {
                 startActivityForResult(builder.build(safeWayHome.this), PLACE_PICKER_REQUEST_LOCATION);
-            }catch (Exception e){
-                Log.e(TAG,"createPlacePicker--->"+e.toString());
+            } catch (Exception e) {
+                Log.e(TAG, "createPlacePicker--->" + e.toString());
             }
         }
     };
@@ -346,32 +236,30 @@ public class safeWayHome extends AppCompatActivity implements OnMapReadyCallback
         @Override
         public void callback(List<myLocation> data) {
 
-            if(data.size()>0) {
-                locationList = (data);
-                Collections.reverse(locationList);
-                configRecyclerView();
-                show_fabs();
-            }else{
-                show_fabs();
-                manageRecyclerViewVisibility();
-            }
-            Log.d(TAG, "Display Location---->");
+            locationList = (data);
+            Collections.reverse(locationList);
+            locationList.add(new myLocation());
+            configRecyclerView();
+
+
+
         }
     };
 
     private SimpleCallback<String> displayErrorPage = new SimpleCallback<String>() {
         @Override
         public void callback(String data) {
-            Toast.makeText(safeWayHome.this, R.string.error, Toast.LENGTH_LONG).show();
+
+            Toasty.error(safeWayHome.this,getResources().getString( R.string.error), Toast.LENGTH_LONG, true).show();
             Log.e(TAG, "Display Location----> error" + data.toString());
         }
     };
 
     private void configRecyclerView() {
         locationsPager.setVisibility(View.VISIBLE);
-        empty_locationsPager.setVisibility(View.INVISIBLE);
-        locationAdapter = new savedLocationAdapter(locationList, position, R.layout.view_saved_location, safeWayHome.this, listenerRecyclerView);
+        locationAdapter = new savedLocationAdapter(locationList, position, R.layout.view_saved_location, safeWayHome.this, listenerRecyclerView, listenerRecyclerView2);
         locationsPager.setAdapter(locationAdapter);
+        registerForContextMenu(locationsPager);
         manager = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);
         locationsPager.setLayoutManager(manager);
         PagerSnapHelper snapHelper = new PagerSnapHelper();
@@ -379,17 +267,7 @@ public class safeWayHome extends AppCompatActivity implements OnMapReadyCallback
         manager.scrollToPosition(Integer.MAX_VALUE / 2);
 
     }
-    private void manageRecyclerViewVisibility() {
-        if(locationList.size()>0){
-            locationsPager.setVisibility(View.VISIBLE);
-            empty_locationsPager.setVisibility(View.INVISIBLE);
-        }else{
 
-            locationsPager.setVisibility(View.INVISIBLE);
-            empty_locationsPager.setVisibility(View.VISIBLE);
-        }
-
-    }
 
     private void configToolbar() {
         Log.d(TAG, "+++++++ Configuring toolbar");
@@ -403,7 +281,11 @@ public class safeWayHome extends AppCompatActivity implements OnMapReadyCallback
             public void onClick(View view) {
 
                 Intent intent = new Intent(safeWayHome.this, settingsActivity.class);
+                 //intent.setFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
+              //  intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+               // intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 startActivity(intent);
+              //  finish();
             }
         });
 
@@ -414,7 +296,11 @@ public class safeWayHome extends AppCompatActivity implements OnMapReadyCallback
         switch (item.getItemId()) {
             case R.id.linkedUsersButton:
                 Intent intent = new Intent(safeWayHome.this, linkedUsersList.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
+                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 startActivity(intent);
+                finish();
 
             default:
                 return super.onOptionsItemSelected(item);
@@ -449,6 +335,164 @@ public class safeWayHome extends AppCompatActivity implements OnMapReadyCallback
         };
     }
 
+    private onRecyclerViewClickListener listenerRecyclerView2;
+
+    {
+        listenerRecyclerView2 = new onRecyclerViewClickListener() {
+            @Override
+            public void onClick(View view, int position) {
+                if ((position % locationList.size())+1 == locationList.size() ) {
+                    new_location();
+                }
+            }
+        };
+    }
+    /////////////////////////////////////////////////////////////
+    ///////////////////// LOCATION MENU ///////////////////
+    /////////////////////////////////////////////////////////////
+    @Override
+    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
+        super.onCreateContextMenu(menu, v, menuInfo);
+
+        // Inflate Menu from xml resource
+        MenuInflater menuInflater = safeWayHome.this.getMenuInflater();
+        menuInflater.inflate(R.menu.menu_saved_location, menu);
+    }
+
+    @Override
+    public boolean onContextItemSelected(MenuItem item) {
+
+        switch (item.getItemId()) {
+            case R.id.menu_saved_location_edit:
+                edit_location();
+                return true;
+            case R.id.menu_saved_location_delete:
+                delete_location();
+                return true;
+        }
+        return true;
+    }
+    /////////////////////////////////////////////////////////////
+    ///////////////////// LOCATION MANAGEMENT ///////////////////
+    /////////////////////////////////////////////////////////////
+
+    private void new_location() {
+        Log.d(TAG, "select location");
+        final EditText nameInput = new EditText(safeWayHome.this);
+        nameInput.setInputType(InputType.TYPE_CLASS_TEXT);
+        new AlertDialog.Builder(safeWayHome.this)
+                .setTitle(R.string.set_new_location_title)
+                .setMessage(R.string.set_new_location_message)
+                .setView(nameInput)
+                .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        try {
+                            String name = nameInput.getText().toString();
+                            if (name == null || name.equals("")) {
+                                Log.d(TAG, "-----> Name empty");
+                                Toasty.warning(safeWayHome.this,getResources().getString( R.string.location_name_empty), Toast.LENGTH_LONG, true).show();
+
+                            } else {
+                                placeName = name;
+                                createPlacePicker();
+                            }
+                        } catch (Exception e) {
+                            Log.e(TAG, "eerror" + e.toString());
+                            Toasty.error(safeWayHome.this,getResources().getString( R.string.error), Toast.LENGTH_LONG, true).show();
+
+
+                        }
+
+                    }
+                })
+                .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+
+                    }
+                })
+                .create()
+                .show();
+
+    }
+
+    private void edit_location(){
+        if (locationList.size() < 1) return;
+        final EditText nameInput = new EditText(safeWayHome.this);
+        nameInput.setInputType(InputType.TYPE_CLASS_TEXT);
+        final int position = manager.findFirstVisibleItemPosition() % locationList.size();
+        Log.e(TAG, "Visible item position edit " + position);
+        new AlertDialog.Builder(safeWayHome.this)
+                .setTitle(R.string.edit_location_title)
+                .setMessage(R.string.edit_location_mesage)
+                .setView(nameInput)
+                .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        try {
+                            String name = nameInput.getText().toString();
+                            if (name == null || name.equals("")) {
+                                Log.d(TAG, "-----> Name empty");
+                                Toast.makeText(safeWayHome.this, R.string.location_name_empty, Toast.LENGTH_SHORT).show();
+                                Toasty.warning(safeWayHome.this,getResources().getString( R.string.location_name_empty), Toast.LENGTH_LONG, true).show();
+                            } else {
+                                String oldName = locationList.get(position).getName();
+                                locationAdapter.updateItem(position, name);
+                                myLocation location = locationList.get(position);
+                                manager.scrollToPosition(position + locationList.size());
+                                DatabaseService.updateSavedLocation(location, oldName);
+
+                            }
+                        } catch (Exception e) {
+                            Log.e(TAG, "eerror" + e.toString());
+                            Toasty.error(safeWayHome.this,getResources().getString( R.string.error), Toast.LENGTH_LONG, true).show();
+
+                        }
+
+                    }
+                })
+                .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+
+                    }
+                })
+                .create()
+                .show();
+
+    }
+
+    private void delete_location(){
+        if (locationList.size() < 1) return;
+        final int position = manager.findFirstVisibleItemPosition() % locationList.size();
+        new AlertDialog.Builder(safeWayHome.this)
+                .setTitle(R.string.delete_location_title)
+                .setMessage(R.string.delete_location_mesage)
+                .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        try {
+                            DatabaseService.deleteSavedLocation(locationList.get(position).getName());
+                            locationAdapter.deleteItem(position);
+                            manager.scrollToPosition(position + locationList.size());
+
+                        } catch (Exception e) {
+                            Log.e(TAG, "eerror" + e.toString());
+                            Toasty.error(safeWayHome.this,getResources().getString( R.string.error), Toast.LENGTH_LONG, true).show();
+                        }
+
+                    }
+                })
+                .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+
+                    }
+                })
+                .create()
+                .show();
+    }
     /////////////////////////////////////////////////////////////
     ///////////////////// LOCATION PERMISSION ///////////////////
     /////////////////////////////////////////////////////////////
@@ -583,7 +627,7 @@ public class safeWayHome extends AppCompatActivity implements OnMapReadyCallback
                         case LocationSettingsStatusCodes.SETTINGS_CHANGE_UNAVAILABLE:
                             Log.d(TAG, "GPS not enabled, unavailable ----------");
                             notStartTracking();
-                            Toast.makeText(safeWayHome.this, R.string.error_gps, Toast.LENGTH_LONG).show();
+                            Toasty.error(safeWayHome.this,getResources().getString( R.string.error_gps), Toast.LENGTH_LONG, true).show();
                             break;
 
                     }
@@ -592,8 +636,8 @@ public class safeWayHome extends AppCompatActivity implements OnMapReadyCallback
             });
         } catch (Exception e) {
             notStartTracking();
-            Toast.makeText(this, R.string.error_gps, Toast.LENGTH_LONG).show();
-        }
+            Toasty.error(safeWayHome.this,getResources().getString( R.string.error_gps), Toast.LENGTH_LONG, true).show();
+            }
 
     }
 
@@ -615,8 +659,9 @@ public class safeWayHome extends AppCompatActivity implements OnMapReadyCallback
                         notStartTracking();
                         Log.d(TAG, "GPS not enabled, resolution needed---------- Location not enabled, user cancelled.");
                         // The user was asked to change settings, but chose not to
+                        Toasty.error(safeWayHome.this,getResources().getString( R.string.error_gps), Toast.LENGTH_LONG, true).show();
 
-                        Toast.makeText(safeWayHome.this, R.string.error_gps, Toast.LENGTH_LONG).show();
+
                         break;
                     }
                     default: {
@@ -626,26 +671,18 @@ public class safeWayHome extends AppCompatActivity implements OnMapReadyCallback
                 break;
 
             case PLACE_PICKER_REQUEST:
-                try{
+                try {
                     Place place = PlacePicker.getPlace(this, data);
                     String address = String.format("%s", place.getAddress());
                     double latitude = place.getLatLng().latitude;
                     double longitude = place.getLatLng().longitude;
                     myLocation location = new myLocation(placeName, address, latitude, longitude);
-                    if(locationList.size()==0){
-                        locationsPager.setOnFlingListener(null);
-                        locationList.add(location);
-                        configRecyclerView();
-                        manageRecyclerViewVisibility();
-                        show_fabs();
-                    }else{
-                        locationAdapter.addItem(location);
-                    }
                     DatabaseService.saveLocation(location);
+                    locationAdapter.addItem(location);
 
-                }catch(Exception e){
-                    Log.e(TAG,e.toString());
-                    Toast.makeText(this, R.string.error, Toast.LENGTH_LONG).show();
+                } catch (Exception e) {
+                    Log.e(TAG, e.toString());
+                   // Toast.makeText(this, R.string.error, Toast.LENGTH_LONG).show();
                 }
 
                 break;
@@ -659,9 +696,9 @@ public class safeWayHome extends AppCompatActivity implements OnMapReadyCallback
                     myLocation location2 = new myLocation("", address2, latitude2, longitude2);
                     selectedLocation = location2;
                     requestLocationPermission();
-                }catch(Exception e){
-                    Log.e(TAG,e.toString());
-                    Toast.makeText(this, R.string.error, Toast.LENGTH_LONG).show();
+                } catch (Exception e) {
+                    Log.e(TAG, e.toString());
+                   // Toast.makeText(this, R.string.error, Toast.LENGTH_LONG).show();
                 }
                 break;
 
@@ -673,6 +710,7 @@ public class safeWayHome extends AppCompatActivity implements OnMapReadyCallback
     private void startTracking() {
         createTracking();
         sharedPreferences.writeBoolean(this, "tracking", true);
+        sharedPreferences.writeBoolean(this, "emergency", false);
         sharedPreferences.writeString(this, "lat", Double.toString(selectedLocation.getLat()));
         sharedPreferences.writeString(this, "long", Double.toString(selectedLocation.getLon()));
         Intent service = new Intent(this, locationService.class);
@@ -681,8 +719,8 @@ public class safeWayHome extends AppCompatActivity implements OnMapReadyCallback
         } else {
             startService(service);
         }
-        bindService( new Intent(this, locationService.class),mConnection, Context.BIND_AUTO_CREATE);
-        binded=true;
+        bindService(new Intent(this, locationService.class), mConnection, Context.BIND_AUTO_CREATE);
+        binded = true;
         displayTracking();
 
 
@@ -698,12 +736,13 @@ public class safeWayHome extends AppCompatActivity implements OnMapReadyCallback
     /////////////////////
 
 
-    private boolean binded=false;
+    private boolean binded = false;
+
     private void stopLocationUpdates() {
-        if(binded){
+        if (binded) {
 
             unbindService(mConnection);
-            binded=false;
+            binded = false;
         }
         sharedPreferences.writeBoolean(this, "tracking", false);
         stopService(new Intent(this, locationService.class));
@@ -726,14 +765,6 @@ public class safeWayHome extends AppCompatActivity implements OnMapReadyCallback
     }
 
 
-    private void printInfo() {
-
-        String text = "tracking  :" + sharedPreferences.readBoolean(this, "tracking") + " \n "
-                + " ";
-        Toast.makeText(this, text, Toast.LENGTH_LONG).show();
-
-    }
-
     ///////
     ///Location picker
     /////////
@@ -753,12 +784,11 @@ public class safeWayHome extends AppCompatActivity implements OnMapReadyCallback
 ////START STOP
 
     private void displayTracking() {
-        hide_fabs();
+        displayEmergencyFab( sharedPreferences.readBoolean(safeWayHome.this,"emergency"));
         stop_fab.show();
-        startMarker=false;
-
+        emergency_fab.show();
+        startMarker = false;
         toolbar.setBackgroundResource(R.color.colorPrimary);
-
         select_location.setVisibility(View.INVISIBLE);
         mapFragment = MapFragment.newInstance();
         mapFragment.getMapAsync(this);
@@ -768,34 +798,17 @@ public class safeWayHome extends AppCompatActivity implements OnMapReadyCallback
 
     }
 
-    private void hide_fabs(){
-        edit_fab.hide();
-        save_fab.hide();
-        delete_fab.hide();
-    }
 
-    private void show_fabs(){
-        if (sharedPreferences.readBoolean(safeWayHome.this, "tracking") == true) return;
-        if(locationList.size()>0){
-            delete_fab.show();
-            edit_fab.show();
-        }else{
-            delete_fab.hide();
-            edit_fab.hide();
-        }
-        save_fab.show();
-    }
 
 
     private void hideTracking() {
 
-        show_fabs();
         stop_fab.hide();
+        emergency_fab.hide();
         toolbar.setTitle("");
         toolbar.setBackgroundResource(R.color.transparent);
-        manageRecyclerViewVisibility();
         select_location.setVisibility(View.VISIBLE);
-        startMarker=false;
+        startMarker = false;
         if (fragmentTransaction != null && mapFragment != null) {
             fragmentTransaction = getFragmentManager().beginTransaction();
             fragmentTransaction.remove(mapFragment).commitAllowingStateLoss();
@@ -803,21 +816,22 @@ public class safeWayHome extends AppCompatActivity implements OnMapReadyCallback
         }
     }
 
-    public  static void changeDistance(Float distance) {
+    public static void changeDistance(Float distance) {
         if (trackedPath != null) {
             trackedPath.setPoints(trackedLocations);
             mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(trackedLocations.get(trackedLocations.size() - 1), 20));
         }
-        if(toolbar!=null){
+        if (toolbar != null) {
             toolbar.setTitle(distance + " m");
         }
     }
 
     private static boolean startMarker = false;
+
     public static void addLocation(LatLng position) {
-        if (!startMarker && mMap!=null) {
+        if (!startMarker && mMap != null) {
             if (trackedLocations.size() > 0) {
-                Log.e(TAG,"add start marker");
+                Log.e(TAG, "add start marker");
                 mMap.addMarker(new MarkerOptions().position(trackedLocations.get(0))
                         .title(MainApplication.getAppContext().getResources().getString(R.string.started))
                         .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE)));
@@ -840,7 +854,8 @@ public class safeWayHome extends AppCompatActivity implements OnMapReadyCallback
         mMap.addMarker(new MarkerOptions()
                 .position(destination)
                 .title(getResources().getString(R.string.destination))
-                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED)));
+                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)));
+        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(destination, 20));
 
         trackedPath = mMap.addPolyline(new PolylineOptions()
                 .color(Color.BLUE)
@@ -869,17 +884,18 @@ public class safeWayHome extends AppCompatActivity implements OnMapReadyCallback
     private Handler serviceHandler = new Handler() {
         @Override
         public void handleMessage(Message msg) {
-            Log.e(TAG,"arrived to goal");
-            if(binded){
+            Log.e(TAG, "arrived to goal");
+            if (binded) {
                 unbindService(mConnection);
-                binded=false;
+                binded = false;
             }
             hideTracking();
         }
     };
 
-    private static String pass="";
-    public  void alarmAlertDialog(){
+    private static String pass = "";
+
+    public void alarmAlertDialog() {
         final EditText nameInput = new EditText(this);
         nameInput.setInputType(InputType.TYPE_TEXT_VARIATION_PASSWORD);
         new AlertDialog.Builder(this)
@@ -892,10 +908,12 @@ public class safeWayHome extends AppCompatActivity implements OnMapReadyCallback
                         try {
                             pass = nameInput.getText().toString();
                             if (pass == null || pass.equals("")) {
+                                Toasty.warning(safeWayHome.this,getResources().getString( R.string.password_empty), Toast.LENGTH_LONG, true).show();
+
                                 Toast.makeText(safeWayHome.this, R.string.password_empty, Toast.LENGTH_SHORT).show();
                                 alarmAlertDialog();
                             } else {
-                                DatabaseService.getUser(alarmCallback,new SimpleCallback<String>() {
+                                DatabaseService.getUser(alarmCallback, new SimpleCallback<String>() {
                                     @Override
                                     public void callback(String data) {
                                         Log.e(TAG, data);
@@ -904,7 +922,8 @@ public class safeWayHome extends AppCompatActivity implements OnMapReadyCallback
                             }
                         } catch (Exception e) {
                             Log.e(TAG, "eerror" + e.toString());
-                            Toast.makeText(safeWayHome.this, R.string.error, Toast.LENGTH_LONG).show();
+                            Toasty.error(safeWayHome.this,getResources().getString( R.string.error), Toast.LENGTH_LONG, true).show();
+
 
                         }
 
@@ -913,20 +932,34 @@ public class safeWayHome extends AppCompatActivity implements OnMapReadyCallback
                 .create()
                 .show();
     }
-    private  SimpleCallback<User> alarmCallback = new SimpleCallback<User>() {
+
+    private SimpleCallback<User> alarmCallback = new SimpleCallback<User>() {
         @SuppressLint("MissingPermission")
         @Override
         public void callback(User data) {
-            if(data.getPassword().compareTo(pass)==0){
-                sharedPreferences.writeBoolean(safeWayHome.this,"alarmOn",false);
+            if (data.getPassword().compareTo(pass) == 0) {
+                sharedPreferences.writeBoolean(safeWayHome.this, "alarmOn", false);
                 FCMService.stopMediaPlayer();
-            }else{
+            } else {
                 alarmAlertDialog();
-                Toast.makeText(safeWayHome.this, R.string.incorrect_password, Toast.LENGTH_SHORT).show();
+                Toasty.error(safeWayHome.this,getResources().getString( R.string.incorrect_password), Toast.LENGTH_LONG, true).show();
+
             }
 
         }
     };
+
+
+    private void  displayEmergencyFab(boolean emergency){
+        if(!emergency){
+            emergency_fab.setBackgroundTintList(ColorStateList.valueOf(Color.parseColor("#e53935")));
+            emergency_fab.setImageResource(R.drawable.ic_baseline_warning_24px);
+        }else{
+            emergency_fab.setBackgroundTintList(ColorStateList.valueOf(Color.parseColor("#43A047")));
+            emergency_fab.setImageResource(R.drawable.ic_baseline_check_24px);
+        }
+    }
+
 }
 
 

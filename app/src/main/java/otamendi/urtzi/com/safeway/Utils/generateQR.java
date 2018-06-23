@@ -1,15 +1,10 @@
 package otamendi.urtzi.com.safeway.Utils;
 
-        import android.graphics.Bitmap;
-        import android.util.Log;
+import android.graphics.Bitmap;
 
-        import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseAuth;
 
-        import net.glxn.qrgen.android.QRCode;
-
-        import org.json.JSONException;
-        import org.json.JSONObject;
-        import org.json.JSONStringer;
+import net.glxn.qrgen.android.QRCode;
 
 /**
  * Created by urtzi on 07/05/2018.

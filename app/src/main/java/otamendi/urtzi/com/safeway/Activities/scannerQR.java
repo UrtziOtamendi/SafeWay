@@ -1,15 +1,31 @@
 package otamendi.urtzi.com.safeway.Activities;
 
 import android.content.Intent;
+import android.graphics.Point;
+import android.graphics.Rect;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.ml.vision.FirebaseVision;
+import com.google.firebase.ml.vision.barcode.FirebaseVisionBarcode;
+import com.google.firebase.ml.vision.barcode.FirebaseVisionBarcodeDetector;
+import com.google.firebase.ml.vision.barcode.FirebaseVisionBarcodeDetectorOptions;
+import com.google.firebase.ml.vision.common.FirebaseVisionImage;
+import com.google.firebase.ml.vision.common.FirebaseVisionImageMetadata;
 import com.google.zxing.Result;
 
+import java.nio.ByteBuffer;
+import java.util.List;
+
+import es.dmoral.toasty.Toasty;
 import me.dm7.barcodescanner.zxing.ZXingScannerView;
-import otamendi.urtzi.com.safeway.Domain.linkedID;
+import otamendi.urtzi.com.safeway.Domain.receptorID;
 import otamendi.urtzi.com.safeway.R;
 import otamendi.urtzi.com.safeway.Utils.DatabaseService;
 import otamendi.urtzi.com.safeway.Utils.SimpleCallback;
@@ -21,10 +37,16 @@ public class scannerQR  extends AppCompatActivity implements ZXingScannerView.Re
     private String name;
     private String senderName;
     private String senderUID;
-
+    private FirebaseVisionBarcodeDetectorOptions options;
+    private FirebaseVisionImage image;
     @Override
     public void onCreate(Bundle state) {
         super.onCreate(state);
+         options =
+                new FirebaseVisionBarcodeDetectorOptions.Builder()
+                        .setBarcodeFormats(FirebaseVisionBarcode.FORMAT_QR_CODE)
+                        .build();
+
         mScannerView = new ZXingScannerView(this);   // Programmatically initialize the scanner view
         setContentView(mScannerView);                // Set the scanner view as the content view
 
@@ -51,17 +73,51 @@ public class scannerQR  extends AppCompatActivity implements ZXingScannerView.Re
         // Do something with the result here
 
         try{
-            Log.v(TAG, rawResult.getText()); // Prints scan results
-            Log.v(TAG, rawResult.getBarcodeFormat().toString()); // Prints the scan format (qrcode, pdf417 etc.)
+            FirebaseVisionImageMetadata metadata = new FirebaseVisionImageMetadata.Builder()
+                    .setWidth(1000)
+                    .setHeight(1000)
+                    .setFormat(FirebaseVisionImageMetadata.IMAGE_FORMAT_NV21)
+                    .setRotation(0)
+                    .build();
 
-            String[] split= rawResult.getText().split("\\s+");
+            ByteBuffer buffer = ByteBuffer.wrap( rawResult.getRawBytes());
+            image = FirebaseVisionImage.fromByteBuffer(buffer, metadata);
 
-            senderName= split[0];
-            Log.d(TAG, "sender name--->"+ senderName);
-            senderUID= split[1];
-            DatabaseService.userExists(senderUID, getUserCallback, errorToastCallback);
+            FirebaseVisionBarcodeDetector detector = FirebaseVision.getInstance()
+                    .getVisionBarcodeDetector(options);
+
+            Task<List<FirebaseVisionBarcode>> result = detector.detectInImage(image)
+                    .addOnSuccessListener(new OnSuccessListener<List<FirebaseVisionBarcode>>() {
+                        @Override
+                        public void onSuccess(List<FirebaseVisionBarcode> barcodes) {
+                            for (FirebaseVisionBarcode barcode: barcodes) {
+                                Rect bounds = barcode.getBoundingBox();
+                                Point[] corners = barcode.getCornerPoints();
+
+                                String rawResult = barcode.getRawValue();
+
+                                Log.v(TAG, rawResult);
+                                String[] split= rawResult.split("\\s+");
+                                senderName= split[0];
+                                Log.d(TAG, "sender name--->"+ senderName);
+                                senderUID= split[1];
+                                DatabaseService.userExists(senderUID, getUserCallback, errorToastCallback);
+
+
+                            }
+                        }
+                    })
+                    .addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            // Task failed with an exception
+                            // ...
+                        }
+                    });
+
         }catch (Exception e){
-            Toast.makeText(scannerQR.this,R.string.wrong_qr, Toast.LENGTH_LONG).show();
+            Toasty.error(scannerQR.this,getResources().getString( R.string.wrong_qr), Toast.LENGTH_LONG, true).show();
+
         }
 
     }
@@ -72,14 +128,16 @@ public class scannerQR  extends AppCompatActivity implements ZXingScannerView.Re
             if(data){
                 DatabaseService.getUsersLinks(geUserLinkers, errorToastCallback);
             }else{
-                Toast.makeText(scannerQR.this, R.string.user_not_found, Toast.LENGTH_LONG).show();
+                Toasty.error(scannerQR.this,getResources().getString( R.string.user_not_found), Toast.LENGTH_LONG, true).show();
+
+
             }
         }
     };
 
-    public SimpleCallback<linkedID> geUserLinkers= new SimpleCallback<linkedID>() {
+    public SimpleCallback<receptorID> geUserLinkers= new SimpleCallback<receptorID>() {
         @Override
-        public void callback(linkedID data) {
+        public void callback(receptorID data) {
                 getLinkedUser(data);
         }
     };
@@ -87,23 +145,24 @@ public class scannerQR  extends AppCompatActivity implements ZXingScannerView.Re
     public  SimpleCallback<String> errorToastCallback= new SimpleCallback<String>() {
         @Override
         public void callback(String data) {
-            Toast.makeText(scannerQR.this,data, Toast.LENGTH_LONG).show();
+            Toasty.error(scannerQR.this,data, Toast.LENGTH_LONG, true).show();
+
             returnSettings();
         }
     };
 
-    private void getLinkedUser(linkedID linkedID) {
-        linkedID newLink;
-        if(linkedID==null){
-            Log.d(TAG,"OldDated user don't have any linked ID" + (linkedID ==null));
-            newLink= new linkedID(name,senderUID);
+    private void getLinkedUser(receptorID receptorID) {
+        receptorID newLink;
+        if(receptorID ==null){
+            Log.d(TAG,"OldDated user don't have any linked ID" + (receptorID ==null));
+            newLink= new receptorID(name,senderUID);
         }
         else{
-            if(linkedID.getLink1()==null){
-                Log.d(TAG,"OldDated user don't have any linked ID" + (linkedID.getLink1()==null));
-                newLink= new linkedID(name,senderUID);
+            if(receptorID.getLink1()==null){
+                Log.d(TAG,"OldDated user don't have any linked ID" + (receptorID.getLink1()==null));
+                newLink= new receptorID(name,senderUID);
             }else{
-                newLink= new linkedID(linkedID.getName1(),linkedID.getLink1(),name,senderUID);
+                newLink= new receptorID(receptorID.getName1(), receptorID.getLink1(),name,senderUID);
             }
         }
 

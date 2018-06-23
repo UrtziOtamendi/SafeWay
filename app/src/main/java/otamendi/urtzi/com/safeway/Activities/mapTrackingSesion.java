@@ -3,7 +3,6 @@ package otamendi.urtzi.com.safeway.Activities;
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.graphics.Color;
-import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -30,13 +29,10 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 
-import otamendi.urtzi.com.safeway.Domain.myLocation;
+import es.dmoral.toasty.Toasty;
 import otamendi.urtzi.com.safeway.Domain.trackingLocation;
-import otamendi.urtzi.com.safeway.Domain.trackingSesion;
 import otamendi.urtzi.com.safeway.R;
 import otamendi.urtzi.com.safeway.Utils.DatabaseService;
 import otamendi.urtzi.com.safeway.Utils.SimpleCallback;
@@ -77,8 +73,8 @@ public class mapTrackingSesion extends AppCompatActivity implements OnMapReadyCa
         mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.mapTrackingSesion);
         mapFragment.getMapAsync(this);
-        toolbar = (Toolbar) findViewById(R.id.mapTrackingSesion_toolbar);
-        timeProgress= (SeekBar) findViewById(R.id.timeProgress);
+        toolbar = findViewById(R.id.mapTrackingSesion_toolbar);
+        timeProgress= findViewById(R.id.timeProgress);
 
     }
 
@@ -107,6 +103,7 @@ public class mapTrackingSesion extends AppCompatActivity implements OnMapReadyCa
     ///////// READ SESION
     private void getTrackingSesion() {
         DatabaseService.getTrackingSesion(users_uid, sesion_id, getTrackingSesionCallback, displayErrorPage);
+        DatabaseService.getTrackingSesionEmergencyCallback(users_uid , sesion_id, getTrackingSesionEmergencyCallback,displayErrorPage);
     }
 
     private SimpleCallback<List<trackingLocation>> getTrackingSesionCallback = new SimpleCallback<List<trackingLocation>>() {
@@ -125,10 +122,21 @@ public class mapTrackingSesion extends AppCompatActivity implements OnMapReadyCa
         }
     };
 
+    private SimpleCallback<List<trackingLocation>> getTrackingSesionEmergencyCallback = new SimpleCallback<List<trackingLocation>>() {
+        @Override
+        public void callback(List<trackingLocation> data) {
+            if(data==null) return;
+            if(data.size()==0) return;
+            for (trackingLocation location : data) {
+                displayEmergency(location);
+            }
+        }
+    };
+
     private SimpleCallback<String> displayErrorPage = new SimpleCallback<String>() {
         @Override
         public void callback(String data) {
-            Toast.makeText(mapTrackingSesion.this, R.string.error, Toast.LENGTH_LONG).show();
+            Toasty.error(mapTrackingSesion.this, getResources().getString(R.string.error), Toast.LENGTH_LONG,true).show();
             Log.e(TAG, "Display Location----> error" + data.toString());
         }
     };
@@ -142,6 +150,7 @@ public class mapTrackingSesion extends AppCompatActivity implements OnMapReadyCa
     private void displaySesion() {
         displayGoal();
         drawPolyline();
+
     }
 
     private void displayGoal() {
@@ -149,11 +158,22 @@ public class mapTrackingSesion extends AppCompatActivity implements OnMapReadyCa
         mMap.addMarker(new MarkerOptions()
                 .position(destination)
                 .title(getResources().getString(R.string.destination))
-                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED)));
+                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)));
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(destination, 15));
 
 
     }
+
+    private void displayEmergency(trackingLocation location) {
+        Log.e(TAG,"displayEmergency ");
+        if(mMap!=null){
+            mMap.addMarker(new MarkerOptions()
+                    .position(location.toLatLng())
+                    .title(df.format(location.getDate()))
+                    .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED)));
+        }
+    }
+
 
     @SuppressLint("ResourceType")
     private void drawPolyline() {

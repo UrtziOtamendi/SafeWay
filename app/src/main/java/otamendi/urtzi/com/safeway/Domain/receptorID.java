@@ -8,7 +8,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
-public class linkedID {
+public class receptorID {
 
     private String link1 =null;
     private String link2 =null;
@@ -16,14 +16,14 @@ public class linkedID {
     private String name1 =null;
     private String name2 =null;
 
-    public linkedID(){}
-    public linkedID( String nm1, String id1 ){
+    public receptorID(){}
+    public receptorID(String nm1, String id1 ){
 
         link1 =id1;
         name1=nm1;
     }
 
-    public linkedID(String nm1, String id1 , String nm2, String id2){
+    public receptorID(String nm1, String id1 , String nm2, String id2){
 
         link1 =id1;
         link2 =id2;
@@ -47,18 +47,18 @@ public class linkedID {
 
     @Override
     public String toString() {
-        return "linkedID{" +
-                "link1='" + link1 + '\'' +
-                ", link2='" + link2 + '\'' +
-                ", name1='" + name1 + '\'' +
-                ", name2='" + name2 + '\'' +
+        return "receptorID{" + '\n' +
+                "   link1='" + link1 + '\n' +
+                "   link2='" + link2 + '\n' +
+                "   name1='" + name1 + '\n' +
+                "   name2='" + name2 + '\n' +
                 '}';
     }
 
-    public static linkedID bindDataSnapshot(DataSnapshot data){
-        Log.d("linkedID",data.toString());
+    public static receptorID bindDataSnapshot(DataSnapshot data){
+        Log.d("receptorID",data.toString());
         if(data==null){
-            return new linkedID();
+            return new receptorID();
         }else{
             Iterator<DataSnapshot> iterator = data.getChildren().iterator();
             while(iterator.hasNext()){
@@ -67,7 +67,7 @@ public class linkedID {
                 aux.getValue();
             }
         }
-        return new linkedID();
+        return new receptorID();
     }
 
 

@@ -20,11 +20,10 @@ import java.util.List;
 import java.util.Map;
 
 import otamendi.urtzi.com.safeway.Domain.User;
-import otamendi.urtzi.com.safeway.Domain.linkedID;
+import otamendi.urtzi.com.safeway.Domain.receptorID;
 import otamendi.urtzi.com.safeway.Domain.myLocation;
 import otamendi.urtzi.com.safeway.Domain.trackingLocation;
 import otamendi.urtzi.com.safeway.Domain.trackingSesion;
-import otamendi.urtzi.com.safeway.FirebasseMessaginService.FCMService;
 
 public class DatabaseService {
 
@@ -53,7 +52,7 @@ public class DatabaseService {
 
     /// Get Users receptors ID, the ones that are going to receive users tracking information
 
-    public static void getUsersLinks(@NonNull final SimpleCallback<linkedID> finishedCallback, @NonNull final SimpleCallback<String> errorCallback) {
+    public static void getUsersLinks(@NonNull final SimpleCallback<receptorID> finishedCallback, @NonNull final SimpleCallback<String> errorCallback) {
         FirebaseUser userF = FirebaseAuth.getInstance().getCurrentUser();
         DatabaseReference mDatabase = FirebaseDatabase.getInstance().getReference();
         DatabaseReference userData = mDatabase.child("users").child(userF.getUid()).child("receptorsID");
@@ -61,7 +60,7 @@ public class DatabaseService {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
 
-                linkedID linkers = dataSnapshot.getValue(linkedID.class);
+                receptorID linkers = dataSnapshot.getValue(receptorID.class);
                 if (linkers != null) Log.d(TAG, linkers.toString());
                 finishedCallback.callback(linkers);
             }
@@ -267,17 +266,46 @@ public class DatabaseService {
 
     }
 
-    public static void isTracking(final String userUid, final SimpleCallback<Boolean> finishedCallback) {
+
+
+    public static void getTrackingSesionEmergencyCallback(String users_uid, String tracking_id, final SimpleCallback<List<trackingLocation>> finishedCallback, final SimpleCallback<String> errorCallback) {
+        DatabaseReference mDatabase = FirebaseDatabase.getInstance().getReference();
+        final Query getTrackingSesion = mDatabase.child("trackingList").child(users_uid).child(tracking_id).child("emergencyPosition");
+        getTrackingSesion.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                List<trackingLocation> locationList = new ArrayList<trackingLocation>();
+                for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
+                    trackingLocation location = postSnapshot.getValue(trackingLocation.class);
+                    locationList.add(location);
+                }
+                finishedCallback.callback(locationList);
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                errorCallback.callback(databaseError.toString());
+                Log.e("getTrackingList", "Error-------> " + databaseError.toString());
+            }
+        });
+
+    }
+
+    public static void isTracking(final String userUid, final ComplexCallback<Boolean,Boolean> finishedCallback) {
         DatabaseReference mDatabase = FirebaseDatabase.getInstance().getReference();
         final Query isTracking = mDatabase.child("tracking");
         isTracking.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 Boolean isTracking = false;
+                Boolean emergency = false;
                 if (dataSnapshot.hasChild(userUid)) {
                     isTracking = true;
+                   if( dataSnapshot.child(userUid).hasChild("emergency")){
+                       emergency =dataSnapshot.child(userUid).child("emergency").getValue(Boolean.class);
+                    }
                 }
-                finishedCallback.callback(isTracking);
+                finishedCallback.callback(isTracking,emergency);
 
             }
 
@@ -334,29 +362,93 @@ public class DatabaseService {
     }
 
 
-    public static void getLiveTrackingOldPoints(String users_uid, final SimpleCallback<List<trackingLocation>> finishedCallback, final SimpleCallback<String> errorCallback) {
+
+    public static void getLiveTrackingNewEmergencyPoints(String users_uid, final SimpleCallback<trackingLocation> finishedCallback, final SimpleCallback<String> errorCallback) {
         DatabaseReference mDatabase = FirebaseDatabase.getInstance().getReference();
-        final Query getLiveTrackingOldPoints = mDatabase.child("tracking").child(users_uid).child("locations").orderByChild("date");
-        getLiveTrackingOldPoints.addListenerForSingleValueEvent(new ValueEventListener() {
+        final Query getLiveTrackingNewPoints = mDatabase.child("tracking").child(users_uid).child("emergencyPosition");
+        getLiveTrackingNewPoints.addChildEventListener(new ChildEventListener() {
             @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                Log.e(TAG,"getLiveTrackingOldPoints" );
-                List<trackingLocation> locationList = new ArrayList<trackingLocation>();
-                for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
-                    trackingLocation location = postSnapshot.getValue(trackingLocation.class);
-                    locationList.add(location);
+            public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+                try{
+
+                    Log.e(TAG,"getLiveTrackingNewEmergencyPoints" + " child added" );
+                    trackingLocation trackingLocation = dataSnapshot.getValue(trackingLocation.class);
+                    Log.e(TAG,"trackingLocation ----> " + trackingLocation.getDate().toString());
+                    finishedCallback.callback(trackingLocation);
+                }catch (Exception e){
+                    errorCallback.callback("stoped");
                 }
-                Log.e(TAG,"getLiveTrackingOldPoints ----> "+ locationList.size() );
-                finishedCallback.callback(locationList);
+            }
+
+            @Override
+            public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+                Log.e(TAG,"getLiveTrackingNewEmergencyPoints" + " child changed" );
+            }
+
+            @Override
+            public void onChildRemoved(DataSnapshot dataSnapshot) {
+                Log.e(TAG,"getLiveTrackingNewEmergencyPoints" + " child removed" );
+            }
+
+            @Override
+            public void onChildMoved(DataSnapshot dataSnapshot, String s) {
+                Log.e(TAG,"getLiveTrackingNewEmergencyPoints" + " child moved" );
             }
 
             @Override
             public void onCancelled(DatabaseError databaseError) {
                 errorCallback.callback(databaseError.toString());
-                Log.e("getTrackingList", "Error-------> " + databaseError.toString());
+                Log.e(TAG,"getLiveTrackingNewEmergencyPoints" + " child cancelled" );
             }
         });
     }
+
+    public static void getLiveTrackingNewEmergency(String users_uid, final SimpleCallback<Boolean> finishedCallback, final SimpleCallback<String> errorCallback) {
+        DatabaseReference mDatabase = FirebaseDatabase.getInstance().getReference();
+        final Query getLiveTrackingNewPoints = mDatabase.child("tracking").child(users_uid).child("emergency");
+        getLiveTrackingNewPoints.addChildEventListener(new ChildEventListener() {
+            @Override
+            public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+                try{
+
+                    Log.e(TAG,"getLiveTrackingNewEmergency" + " child added" );
+                    boolean emergency = dataSnapshot.getValue(Boolean.class);
+                    finishedCallback.callback(emergency);
+                }catch (Exception e){
+                    errorCallback.callback("stoped");
+                }
+            }
+
+            @Override
+            public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+                try{
+
+                    Log.e(TAG,"getLiveTrackingNewEmergency" + " child added" );
+                    boolean emergency = dataSnapshot.getValue(Boolean.class);
+                    finishedCallback.callback(emergency);
+                }catch (Exception e){
+                    errorCallback.callback("stoped");
+                }
+            }
+
+            @Override
+            public void onChildRemoved(DataSnapshot dataSnapshot) {
+                Log.e(TAG,"getLiveTrackingNewEmergencyPoints" + " child removed" );
+            }
+
+            @Override
+            public void onChildMoved(DataSnapshot dataSnapshot, String s) {
+                Log.e(TAG,"getLiveTrackingNewEmergencyPoints" + " child moved" );
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                errorCallback.callback(databaseError.toString());
+                Log.e(TAG,"getLiveTrackingNewEmergencyPoints" + " child cancelled" );
+            }
+        });
+    }
+
 
     public static void getLiveTrackingNewPoints(String users_uid, final SimpleCallback<trackingLocation> finishedCallback, final SimpleCallback<String> errorCallback) {
         DatabaseReference mDatabase = FirebaseDatabase.getInstance().getReference();
@@ -431,6 +523,7 @@ public class DatabaseService {
         DatabaseReference usersTrackingList = mDatabase.child("trackingList").child(FirebaseAuth.getInstance().getCurrentUser().getUid());
         Date now = new Date();
         usersTracking.child("ended").setValue(now);
+        usersTracking.child("emergency").removeValue();
         moveTo(usersTracking, usersTrackingList);
     }
 
@@ -448,7 +541,7 @@ public class DatabaseService {
         mDatabase.child("users").child(FirebaseAuth.getInstance().getCurrentUser().getUid()).setValue(user);
     }
 
-    public static void saveLinks(linkedID links) {
+    public static void saveLinks(receptorID links) {
         DatabaseReference mDatabase = FirebaseDatabase.getInstance().getReference();
         mDatabase.child("users").child(FirebaseAuth.getInstance().getCurrentUser().getUid()).child("receptorsID").setValue(links);
     }
@@ -474,6 +567,18 @@ public class DatabaseService {
         mDatabase.child("users").child(userF.getUid()).child("linkedID").child(receptorUID).setValue(name);
     }
 
+    public static void saveLiveTrackingEmergency(boolean emergency){
+        String userUid= FirebaseAuth.getInstance().getUid();
+        DatabaseReference mDatabase= FirebaseDatabase.getInstance().getReference();
+        mDatabase.child("tracking").child(userUid).child("emergency").setValue(emergency);
+    }
+
+    public static void saveLiveTrackingEmergencyPosition(trackingLocation trackingLocation){
+        String userUid= FirebaseAuth.getInstance().getUid();
+        DatabaseReference mDatabase= FirebaseDatabase.getInstance().getReference();
+        mDatabase.child("tracking").child(userUid).child("emergencyPosition").push().setValue(trackingLocation);
+    }
+
 /////Delete
 
     public static void deleteSavedLocation(String name) {
@@ -497,5 +602,6 @@ public class DatabaseService {
         DatabaseReference mDatabase= FirebaseDatabase.getInstance().getReference();
         mDatabase.child("users").child(userUid).child("linkedID").child(link).removeValue();
     }
+
 
 }

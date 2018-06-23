@@ -3,8 +3,6 @@ package otamendi.urtzi.com.safeway.Utils;
 import android.content.Context;
 import android.content.SharedPreferences;
 
-import com.google.android.gms.maps.model.LatLng;
-
 import otamendi.urtzi.com.safeway.R;
 
 public class sharedPreferences {

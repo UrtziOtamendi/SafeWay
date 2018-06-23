@@ -1,12 +1,10 @@
 package otamendi.urtzi.com.safeway.Activities;
 
-import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.graphics.Color;
-import android.net.Uri;
+import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
@@ -14,18 +12,14 @@ import android.widget.CompoundButton;
 import android.widget.SeekBar;
 import android.widget.Switch;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
-import com.google.android.gms.maps.model.Dot;
-import com.google.android.gms.maps.model.Gap;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
-import com.google.android.gms.maps.model.PatternItem;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.android.gms.maps.model.RoundCap;
@@ -33,14 +27,11 @@ import com.google.android.gms.maps.model.RoundCap;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
-import otamendi.urtzi.com.safeway.Domain.User;
 import otamendi.urtzi.com.safeway.Domain.myLocation;
 import otamendi.urtzi.com.safeway.Domain.trackingLocation;
-import otamendi.urtzi.com.safeway.Domain.trackingSesion;
 import otamendi.urtzi.com.safeway.FirebasseMessaginService.FCMService;
 import otamendi.urtzi.com.safeway.R;
 import otamendi.urtzi.com.safeway.Utils.ComplexCallback;
@@ -53,6 +44,7 @@ public class trackingLiveWay extends AppCompatActivity implements OnMapReadyCall
     private GoogleMap mMap;
     private SupportMapFragment mapFragment;
     protected static final String TAG = "LIVE TRACKING SESSION ";
+    private boolean emergency=false;
     private String users_uid;
     private Toolbar toolbar;
     private TextView startText, destinationText, batteryText, lastText;
@@ -80,6 +72,8 @@ public class trackingLiveWay extends AppCompatActivity implements OnMapReadyCall
         DatabaseService.getLiveTrackingBattery(users_uid,getLiveTrackingBatteryCallback, displayErrorPage );
         //DatabaseService.getLiveTrackingOldPoints(users_uid,getLiveTrackingOldPointsCallback, displayErrorPage );
         DatabaseService.getLiveTrackingNewPoints(users_uid,getLiveTrackingNewPointsCallback, displayErrorPage);
+        DatabaseService.getLiveTrackingNewEmergencyPoints(users_uid, getLiveTrackingNewEmergencyPointsCallback, displayErrorPage);
+        DatabaseService.getLiveTrackingNewEmergency(users_uid, getLiveTrackingNewEmergency, displayErrorPage);
         autoProgress.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
@@ -141,7 +135,7 @@ public class trackingLiveWay extends AppCompatActivity implements OnMapReadyCall
         mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.mapLiveTracking);
         mapFragment.getMapAsync(this);
-        toolbar = (Toolbar) findViewById(R.id.mapLiveTracking_toolbar);
+        toolbar = findViewById(R.id.mapLiveTracking_toolbar);
         startText = findViewById(R.id.startText);
         destinationText = findViewById(R.id.destinationText);
         batteryText = findViewById(R.id.batteryText);
@@ -197,21 +191,28 @@ public class trackingLiveWay extends AppCompatActivity implements OnMapReadyCall
         }
     };
 
-    private SimpleCallback<List<trackingLocation>> getLiveTrackingOldPointsCallback = new SimpleCallback<List<trackingLocation>>() {
-        @Override
-        public void callback(List<trackingLocation> data) {
-            if(data!=null ){
-                Log.e(TAG,"getLiveTrackingOldPointsCallback --->" + data.size() );
-                if(data.size()>0){
-                    locationList = data;
-                    for (trackingLocation location : locationList) {
-                        locationListLatLng.add(location.toLatLng());
-                    }
 
+    private SimpleCallback<Boolean> getLiveTrackingNewEmergency = new SimpleCallback<Boolean>() {
+        @Override
+        public void callback(Boolean data) {
+            Log.e(TAG,"getLiveTrackingNewEmergency "+ data);
+            if(data!=null ){
+                emergency=data;
+                if(data){
+                    show_fab();
+                }else{
+                    hide_fab();
                 }
             }
-            if(!mapDisplayed) displaySesion();
-            DatabaseService.getLiveTrackingNewPoints(users_uid,getLiveTrackingNewPointsCallback, displayErrorPage);
+        }
+    };
+
+    private SimpleCallback<trackingLocation> getLiveTrackingNewEmergencyPointsCallback = new SimpleCallback<trackingLocation>() {
+        @Override
+        public void callback(trackingLocation data) {
+            if(data!=null ){
+                displayEmergency(data);
+            }
         }
     };
 
@@ -231,6 +232,7 @@ public class trackingLiveWay extends AppCompatActivity implements OnMapReadyCall
                  if(distance<20){
                      show_fab();
                  }else{
+                     if(!emergency)
                      hide_fab();
                  }
                 }
@@ -254,8 +256,20 @@ public class trackingLiveWay extends AppCompatActivity implements OnMapReadyCall
             mMap.addMarker(new MarkerOptions()
                     .position(destination.toLatLng())
                     .title(getResources().getString(R.string.destination))
+                    .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)));
+
+        }
+    }
+
+    private void displayEmergency(trackingLocation location) {
+        Log.e(TAG,"displayEmergency ");
+        if(mMap!=null){
+            mapDisplayed=true;
+            mMap.addMarker(new MarkerOptions()
+                    .position(location.toLatLng())
+                    .title(df.format(location.getDate()))
                     .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED)));
-           moveCamera(destination.toLatLng());
+            moveCamera(location.toLatLng());
         }
     }
 
@@ -314,6 +328,7 @@ public class trackingLiveWay extends AppCompatActivity implements OnMapReadyCall
         public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
             trackedPath.setPoints(locationListLatLng.subList(0,i));
             toolbar.setTitle("   "+df.format(locationList.get(i).getDate()));
+            moveCamera(locationListLatLng.get(i));
         }
 
         @Override

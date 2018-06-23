@@ -1,7 +1,6 @@
 package otamendi.urtzi.com.safeway.Utils.location;
 
 import android.annotation.SuppressLint;
-
 import android.app.Notification;
 import android.app.PendingIntent;
 import android.app.Service;
@@ -152,6 +151,13 @@ public class locationService extends Service {
                     sharedPreferences.writeBoolean(MainApplication.getAppContext(), "tracking", false);
                     handler.handleMessage(new Message());
                     stopSelf();
+                }
+                if(sharedPreferences.readBoolean(MainApplication.getAppContext(),"emergency")){
+                    if(sharedPreferences.readBoolean(MainApplication.getAppContext(),"emergencyPosition")){
+                        sharedPreferences.writeBoolean(MainApplication.getAppContext(),"emergencyPosition", false);
+                        Date date = new Date(last.getTime());
+                        DatabaseService.saveLiveTrackingEmergencyPosition( new trackingLocation(date, last.getLatitude(), last.getLongitude()));
+                    }
                 }
 
             }

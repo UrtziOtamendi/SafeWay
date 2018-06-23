@@ -11,7 +11,7 @@ public class trackingLocation {
     private double lat;
     private double lon;
 
-    public trackingLocation(){};
+    public trackingLocation(){}
 
 
     public trackingLocation(Date date, double lat, double lon) {

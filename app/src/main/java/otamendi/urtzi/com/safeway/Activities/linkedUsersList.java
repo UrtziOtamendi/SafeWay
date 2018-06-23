@@ -3,34 +3,35 @@ package otamendi.urtzi.com.safeway.Activities;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.PagerSnapHelper;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.text.InputType;
 import android.util.Log;
+import android.view.ContextMenu;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Toast;
 
-import java.util.HashMap;
 import java.util.List;
 
+import es.dmoral.toasty.Toasty;
 import otamendi.urtzi.com.safeway.Adapter.linkedUsersAdapter;
-import otamendi.urtzi.com.safeway.Adapter.savedLocationAdapter;
-import otamendi.urtzi.com.safeway.Domain.myLocation;
 import otamendi.urtzi.com.safeway.R;
+import otamendi.urtzi.com.safeway.Utils.ComplexCallback;
 import otamendi.urtzi.com.safeway.Utils.DatabaseService;
 import otamendi.urtzi.com.safeway.Utils.SimpleCallback;
 import otamendi.urtzi.com.safeway.Utils.generateQR;
 import otamendi.urtzi.com.safeway.Utils.onRecyclerViewClickListener;
-import otamendi.urtzi.com.safeway.Utils.sharedPreferences;
 
 public class linkedUsersList extends AppCompatActivity {
 
@@ -58,9 +59,9 @@ public class linkedUsersList extends AppCompatActivity {
     }
 
     private void bindUI() {
-        toolbar = (Toolbar) findViewById(R.id.linkedUsersList_toolbar);
-        usersView = (RecyclerView) findViewById(R.id.linkedUsersList);
-        linkNewUser = (FloatingActionButton) findViewById(R.id.linkNewUser_fab);
+        toolbar = findViewById(R.id.linkedUsersList_toolbar);
+        usersView = findViewById(R.id.linkedUsersList);
+        linkNewUser = findViewById(R.id.linkNewUser_fab);
 
     }
 
@@ -84,6 +85,29 @@ public class linkedUsersList extends AppCompatActivity {
 
     }
 
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.receptorsUsersButton:
+                Log.e(TAG,"receptorsButton");
+                Intent intent = new Intent(linkedUsersList.this, receptorsUsers.class);
+                startActivity(intent);
+                finish();
+
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        Log.d(TAG, "+++++++ On Create Options Menu");
+        getMenuInflater().inflate(R.menu.linked_user_toolbar, menu);
+        return true;
+    }
+
     private void newUsersNameRequest() {
 
         final EditText nameInput = new EditText(this);
@@ -100,7 +124,7 @@ public class linkedUsersList extends AppCompatActivity {
                         String name = nameInput.getText().toString();
                         if (name == null || name.equals("")) {
                             Log.d(TAG, "-----> Name empty");
-                            Toast.makeText(linkedUsersList.this, R.string.users_name_empty, Toast.LENGTH_SHORT).show();
+                            Toasty.error(linkedUsersList.this, getResources().getString(R.string.users_name_empty), Toast.LENGTH_SHORT, true).show();
                         } else {
                             createQR(name);
                         }
@@ -147,14 +171,15 @@ public class linkedUsersList extends AppCompatActivity {
         public void callback(List<String[]> data) {
             linkedUsersList = data;
             configRecyclerView();
-            Log.d(TAG, "Linked users ");
+            Log.d(TAG, "Linked users "+ data.size());
         }
     };
 
     private SimpleCallback<String> displayErrorPage = new SimpleCallback<String>() {
         @Override
         public void callback(String data) {
-            Toast.makeText(linkedUsersList.this, R.string.error, Toast.LENGTH_LONG).show();
+
+            Toasty.error(linkedUsersList.this, getResources().getString(R.string.error), Toast.LENGTH_LONG,true).show();
             Log.e(TAG, "Display Location----> error" + data.toString());
         }
     };
@@ -186,9 +211,9 @@ public class linkedUsersList extends AppCompatActivity {
 
     };
 
-    private SimpleCallback<Boolean> isTrackingCallback = new SimpleCallback<Boolean>() {
+    private ComplexCallback<Boolean,Boolean> isTrackingCallback = new ComplexCallback<Boolean, Boolean>() {
         @Override
-        public void callback(Boolean data) {
+        public void callback(Boolean data, Boolean aux) {
             if (data) {
                 Intent intent = new Intent(linkedUsersList.this, trackingLiveWay.class);
                 intent.putExtra("users_uid", (linkedUsersList.get(selectedPosition))[0]);

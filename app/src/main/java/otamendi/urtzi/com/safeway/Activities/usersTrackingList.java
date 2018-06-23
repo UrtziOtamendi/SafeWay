@@ -1,9 +1,8 @@
 package otamendi.urtzi.com.safeway.Activities;
 
 import android.content.Intent;
-import android.support.design.widget.FloatingActionButton;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -12,12 +11,10 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
-import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 
-import otamendi.urtzi.com.safeway.Adapter.linkedUsersAdapter;
+import es.dmoral.toasty.Toasty;
 import otamendi.urtzi.com.safeway.Adapter.trackingListAdapter;
 import otamendi.urtzi.com.safeway.Domain.trackingSesion;
 import otamendi.urtzi.com.safeway.R;
@@ -47,8 +44,8 @@ public class usersTrackingList extends AppCompatActivity {
     }
 
     private void bindUI() {
-        toolbar = (Toolbar) findViewById(R.id.trackingList_toolbar);
-        trackingView = (RecyclerView) findViewById(R.id.trackingList);
+        toolbar = findViewById(R.id.trackingList_toolbar);
+        trackingView = findViewById(R.id.trackingList);
     }
 
     private void configToolbar() {
@@ -91,7 +88,8 @@ public class usersTrackingList extends AppCompatActivity {
     private SimpleCallback<String> displayErrorPage = new SimpleCallback<String>() {
         @Override
         public void callback(String data) {
-            Toast.makeText(usersTrackingList.this, R.string.error, Toast.LENGTH_LONG).show();
+
+            Toasty.error(usersTrackingList.this, getResources().getString(R.string.error), Toast.LENGTH_LONG, true).show();
             Log.e(TAG, "Display Location----> error" + data.toString());
         }
     };

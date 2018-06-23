@@ -1,10 +1,8 @@
 package otamendi.urtzi.com.safeway.Activities;
 
 import android.content.Intent;
-import android.content.pm.PackageManager;
-import android.support.v4.app.ActivityCompat;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.widget.ImageView;
 import android.widget.Toast;
@@ -17,7 +15,6 @@ import otamendi.urtzi.com.safeway.R;
 import otamendi.urtzi.com.safeway.Utils.AuthService;
 import otamendi.urtzi.com.safeway.Utils.DatabaseService;
 import otamendi.urtzi.com.safeway.Utils.SimpleCallback;
-import otamendi.urtzi.com.safeway.Utils.permissionModule;
 
 public class SplashScreen extends AppCompatActivity {
 
@@ -27,7 +24,7 @@ public class SplashScreen extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_splash_screen);
-        ImageView imageView = (ImageView) findViewById(R.id.loading_gif);
+        ImageView imageView = findViewById(R.id.loading_gif);
         Glide.with(this).load(R.raw.loading).into(imageView);
         if (AuthService.SignedIn()) {
             FCMService.AutoInitEnable();
@@ -60,7 +57,7 @@ public class SplashScreen extends AppCompatActivity {
 
 
     private void sendHome() {
-        Intent intent = new Intent(SplashScreen.this, HomeActivity.class);
+        Intent intent = new Intent(SplashScreen.this, safeWayHome.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
